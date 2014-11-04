@@ -80,7 +80,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Specs\ContainersControllerSpec.cs" />
+    <Compile Include="Specs\Controller\ContainersControllerSpec.cs" />
     <Compile Include="DebuggerShim.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Specs\Feature\ConsumerCanCreateNewContainerSpec.cs" />

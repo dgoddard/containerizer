@@ -7,6 +7,7 @@ using System.IO;
 using Microsoft.Web.Administration;
 using System.Net.Http;
 using System.Collections.Specialized;
+using Newtonsoft.Json.Linq;
 
 namespace Containerizer.Tests
 {
@@ -77,7 +78,7 @@ namespace Containerizer.Tests
             {
                 HttpClient client = null;
                 string id = null;
-                NameValueCollection response = null;
+                string response = null;
                 ServerManager serverManager = new ServerManager();
 
                 Action givenThatImAConsumerOfTheApi = () =>
@@ -91,16 +92,17 @@ namespace Containerizer.Tests
                     var postTask = client.PostAsync("/api/Containers", new FormUrlEncodedContent(new List<KeyValuePair<string, string>>()));
                     postTask.Wait();
                     var postResult = postTask.Result;
-                    var readTask = postResult.Content.ReadAsFormDataAsync();
+                    var readTask = postResult.Content.ReadAsStringAsync();
                     readTask.Wait();
                     response = readTask.Result;
                 };
 
                 Action thenIShouldReceiveTheContainersIdInTheResponse = () =>
                 {
-                    response.should_not_be_null();
-                    response["id"].should_not_be_null();
-                    response["id"].should_not_be_empty();
+                    var json = JObject.Parse(response);
+                    json.should_not_be_null();
+                    json["id"].should_not_be_null();
+                    json["id"].should_not_be_empty();
                 };
 
                 Action andIShouldSeeANewSiteWithTheContainersId = () =>
