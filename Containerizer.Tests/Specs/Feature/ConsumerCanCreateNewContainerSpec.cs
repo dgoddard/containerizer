@@ -6,6 +6,7 @@ using System.Web.Http.Results;
 using System.IO;
 using Microsoft.Web.Administration;
 using System.Net.Http;
+using System.Collections.Specialized;
 
 namespace Containerizer.Tests
 {
@@ -74,18 +75,55 @@ namespace Containerizer.Tests
         {
             it["can create a new container"] = () =>
             {
-                var client = new HttpClient();
-                client.BaseAddress = new Uri("http://localhost:" + port.ToString());
-                var postTask = client.PostAsync("/api/Containers", new FormUrlEncodedContent(new List<KeyValuePair<string, string>>()));
-                postTask.Wait();
-                var response = postTask.Result;
-                var readTask = response.Content.ReadAsFormDataAsync();
-                readTask.Wait();
-                var data = readTask.Result;
-                var id = data["id"];
+                HttpClient client = null;
+                string id = null;
+                NameValueCollection response = null;
+                ServerManager serverManager = new ServerManager();
 
-                var serverManager = new ServerManager();
-                serverManager.Sites.should_contain(x => x.Name == id);
+                Action givenThatImAConsumerOfTheApi = () =>
+                {
+                    client = new HttpClient();
+                    client.BaseAddress = new Uri("http://localhost:" + port.ToString());
+                };
+
+                Action whenIPostARequest = () =>
+                {
+                    var postTask = client.PostAsync("/api/Containers", new FormUrlEncodedContent(new List<KeyValuePair<string, string>>()));
+                    postTask.Wait();
+                    var postResult = postTask.Result;
+                    var readTask = postResult.Content.ReadAsFormDataAsync();
+                    readTask.Wait();
+                    response = readTask.Result;
+                };
+
+                Action thenIShouldReceiveTheContainersIdInTheResponse = () =>
+                {
+                    response.should_not_be_null();
+                    response["id"].should_not_be_null();
+                    response["id"].should_not_be_empty();
+                };
+
+                Action andIShouldSeeANewSiteWithTheContainersId = () =>
+                    {
+
+                        serverManager.Sites.should_contain(x => x.Name == id);
+                    };
+
+                Action andTheSiteSHouldHaveANewAppPoolWithTheSameNameAsTheContainersId = () =>
+                {
+
+                    serverManager.Sites.First(x => x.Name == id).Applications[0].ApplicationPoolName.should_be(id);
+                };
+
+                givenThatImAConsumerOfTheApi();
+                whenIPostARequest();
+                thenIShouldReceiveTheContainersIdInTheResponse();
+                andIShouldSeeANewSiteWithTheContainersId();
+                andTheSiteSHouldHaveANewAppPoolWithTheSameNameAsTheContainersId();
+
+
+
+
 
             };
         }
