@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Web.Http;
 using Newtonsoft.Json;
 using Containerizer.Services.Interfaces;
+using System.Threading.Tasks;
 
 namespace Containerizer.Controllers
 {
@@ -23,9 +24,17 @@ namespace Containerizer.Controllers
             this.createContainerService = createContainerService;
         }
 
-        public IHttpActionResult Post()
+        public async Task<IHttpActionResult> Post()
         {
-            return Json(new Response { Id = "hi" });
+            try
+            {
+               var id = await createContainerService.CreateContainer();
+               return Json(new Response { Id = id });
+            }
+            catch (CouldNotCreateContainerException ex)
+            {
+                return this.InternalServerError(ex);
+            }
         }
     }
 }

@@ -28,23 +28,30 @@ namespace Containerizer.Tests
         {
             context["when the container is created successfully"] = () =>
             {
-                var containerId = Guid.NewGuid().ToString();
-                mockCreateContainerService.Setup(x => x.CreateContainer())
-                    .ReturnsAsync(containerId);
+                string containerId = null;
+
+                before = () =>
+                {
+                    containerId = Guid.NewGuid().ToString();
+                    mockCreateContainerService.Setup(x => x.CreateContainer()).ReturnsAsync(containerId);
+                };
 
                 it["returns a successful status code"] = () =>
                 {
-                    var postTask = containersController.Post().ExecuteAsync(new CancellationToken());
+                    var postTask = containersController.Post();
                     postTask.Wait();
-                    postTask.Result.IsSuccessStatusCode.should_be_true();
-
+                    var resultTask = postTask.Result.ExecuteAsync(new CancellationToken());
+                    resultTask.Wait();
+                    resultTask.Result.IsSuccessStatusCode.should_be_true();
                 };
 
                 it["returns the container's id"] = () =>
                 {
-                    var postTask = containersController.Post().ExecuteAsync(new CancellationToken());
+                    var postTask = containersController.Post();
                     postTask.Wait();
-                    var readTask = postTask.Result.Content.ReadAsStringAsync();
+                    var resultTask = postTask.Result.ExecuteAsync(new CancellationToken());
+                    resultTask.Wait();
+                    var readTask = resultTask.Result.Content.ReadAsStringAsync();
                     readTask.Wait();
                     var json = JObject.Parse(readTask.Result);
                     json["id"].ToString().should_be(containerId);
@@ -52,14 +59,18 @@ namespace Containerizer.Tests
             };
             context["when the container is not created successfully"] = () =>
             {
-                mockCreateContainerService.Setup(x => x.CreateContainer())
-                    .Throws<CouldNotCreateContainerException>();
+                before = () =>
+                {
+                    mockCreateContainerService.Setup(x => x.CreateContainer()).ThrowsAsync(new CouldNotCreateContainerException());
+                };
 
                 it["returns a error status code"] = () =>
                 {
-                    var postTask = containersController.Post().ExecuteAsync(new CancellationToken());
+                    var postTask = containersController.Post();
                     postTask.Wait();
-                    postTask.Result.IsSuccessStatusCode.should_be_false();
+                    var resultTask = postTask.Result.ExecuteAsync(new CancellationToken());
+                    resultTask.Wait();
+                    resultTask.Result.IsSuccessStatusCode.should_be_false();
                 };
 
             };
