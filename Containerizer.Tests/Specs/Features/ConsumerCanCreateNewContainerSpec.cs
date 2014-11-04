@@ -15,6 +15,7 @@ namespace Containerizer.Tests
     {
         Containerizer.Controllers.ContainersController containersController;
         int port;
+        string id;
 
         void before_each()
         {
@@ -25,7 +26,8 @@ namespace Containerizer.Tests
 
         void after_each()
         {
-            RemoveExistingSite("Containerizer.Tests", "ContainerizerTestsApplicationPool");
+            Helpers.RemoveExistingSite("Containerizer.Tests", "ContainerizerTestsApplicationPool");
+            Helpers.RemoveExistingSite(id, id);
         }
 
         private static void SetupSiteInIIS(string applicationFolderName, string siteName, string applicationPoolName, int port)
@@ -33,7 +35,7 @@ namespace Containerizer.Tests
             ServerManager serverManager = new ServerManager();
             var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, applicationFolderName);
 
-            RemoveExistingSite(siteName, applicationPoolName);
+            Helpers.RemoveExistingSite(siteName, applicationPoolName);
 
             Site mySite = serverManager.Sites.Add(siteName, path, port);
             mySite.ServerAutoStart = true;
@@ -47,37 +49,13 @@ namespace Containerizer.Tests
             serverManager.CommitChanges();
         }
 
-        private static void RemoveExistingSite(string siteName, string applicationPoolName)
-        {
-            try
-            {
-                ServerManager serverManager = new ServerManager();
-                var existingSite = serverManager.Sites.FirstOrDefault(x => x.Name == siteName);
-                if (existingSite != null)
-                {
-                    serverManager.Sites.Remove(existingSite);
-                    serverManager.CommitChanges();
-                }
 
-                var existingAppPool = serverManager.ApplicationPools.FirstOrDefault(x => x.Name == applicationPoolName);
-                if (existingAppPool != null)
-                {
-                    serverManager.ApplicationPools.Remove(existingAppPool);
-                    serverManager.CommitChanges();
-                }
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                throw new Exception("Try running Visual Studio/test runner as Administrator instead.", ex);
-            }
-        }
 
         void describe_consumer_can_create_new_container()
         {
             it["can create a new container"] = () =>
             {
                 HttpClient client = null;
-                string id = null;
                 string response = null;
                 ServerManager serverManager = new ServerManager();
 
@@ -102,7 +80,8 @@ namespace Containerizer.Tests
                     var json = JObject.Parse(response);
                     json.should_not_be_null();
                     json["id"].should_not_be_null();
-                    json["id"].should_not_be_empty();
+                    id = json["id"].ToString();
+                    id.should_not_be_empty();
                 };
 
                 Action andIShouldSeeANewSiteWithTheContainersId = () =>
@@ -122,10 +101,6 @@ namespace Containerizer.Tests
                 thenIShouldReceiveTheContainersIdInTheResponse();
                 andIShouldSeeANewSiteWithTheContainersId();
                 andTheSiteSHouldHaveANewAppPoolWithTheSameNameAsTheContainersId();
-
-
-
-
 
             };
         }

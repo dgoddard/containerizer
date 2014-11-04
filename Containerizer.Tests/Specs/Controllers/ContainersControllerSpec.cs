@@ -24,7 +24,7 @@ namespace Containerizer.Tests
             containersController.Request = new HttpRequestMessage();
         }
 
-        void describe_create()
+        void describe_post()
         {
             context["when the container is created successfully"] = () =>
             {
@@ -61,7 +61,7 @@ namespace Containerizer.Tests
             {
                 before = () =>
                 {
-                    mockCreateContainerService.Setup(x => x.CreateContainer()).ThrowsAsync(new CouldNotCreateContainerException());
+                    mockCreateContainerService.Setup(x => x.CreateContainer()).ThrowsAsync(new CouldNotCreateContainerException(null));
                 };
 
                 it["returns a error status code"] = () =>

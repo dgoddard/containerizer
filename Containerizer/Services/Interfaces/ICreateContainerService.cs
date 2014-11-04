@@ -14,5 +14,8 @@ namespace Containerizer.Services.Interfaces
         Task<string> CreateContainer();
     }
 
-    public class CouldNotCreateContainerException : Exception { }
+    public class CouldNotCreateContainerException : Exception
+    {
+        public CouldNotCreateContainerException(Exception inner) : base(String.Empty, inner) { }
+    } 
 }
