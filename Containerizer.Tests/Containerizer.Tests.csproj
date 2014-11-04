@@ -83,10 +83,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Specs\Controller\ContainersControllerSpec.cs" />
+    <Compile Include="Specs\Controllers\ContainersControllerSpec.cs" />
     <Compile Include="DebuggerShim.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Specs\Feature\ConsumerCanCreateNewContainerSpec.cs" />
+    <Compile Include="Specs\Features\ConsumerCanCreateNewContainerSpec.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>

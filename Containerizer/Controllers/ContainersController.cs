@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Containerizer.Controllers
 {
-    public class Response
+    public class CreateResponse
     {
         [JsonProperty("id")]
         public string Id { get; set; }
@@ -19,6 +19,7 @@ namespace Containerizer.Controllers
     public class ContainersController : ApiController
     {
         private ICreateContainerService createContainerService;
+
         public ContainersController(ICreateContainerService createContainerService)
         {
             this.createContainerService = createContainerService;
@@ -29,7 +30,7 @@ namespace Containerizer.Controllers
             try
             {
                var id = await createContainerService.CreateContainer();
-               return Json(new Response { Id = id });
+               return Json(new CreateResponse { Id = id });
             }
             catch (CouldNotCreateContainerException ex)
             {
