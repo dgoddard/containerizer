@@ -6,16 +6,20 @@ using System.Web.Http.Results;
 using System.Net.Http;
 using System.Threading;
 using Newtonsoft.Json.Linq;
+using Containerizer.Services.Interfaces;
+using Moq;
 
 namespace Containerizer.Tests
 {
     class ContainersControllerSpec : nspec
     {
         Containerizer.Controllers.ContainersController containersController;
+        Mock<ICreateContainerService> mockCreateContainerService;
 
         void before_each()
         {
-            containersController = new Controllers.ContainersController();
+            mockCreateContainerService = new Mock<ICreateContainerService>();
+            containersController = new Controllers.ContainersController(mockCreateContainerService.Object);
             containersController.Configuration = new System.Web.Http.HttpConfiguration();
             containersController.Request = new HttpRequestMessage();
         }
@@ -25,6 +29,8 @@ namespace Containerizer.Tests
             context["when the container is created successfully"] = () =>
             {
                 var containerId = Guid.NewGuid().ToString();
+                mockCreateContainerService.Setup(x => x.CreateContainer())
+                    .ReturnsAsync(containerId);
 
                 it["returns a successful status code"] = () =>
                 {
@@ -46,6 +52,9 @@ namespace Containerizer.Tests
             };
             context["when the container is not created successfully"] = () =>
             {
+                mockCreateContainerService.Setup(x => x.CreateContainer())
+                    .Throws<CouldNotCreateContainerException>();
+
                 it["returns a error status code"] = () =>
                 {
                     var postTask = containersController.Post().ExecuteAsync(new CancellationToken());
