@@ -18,7 +18,7 @@ setup
 ![cloning](https://github.com/pivotal-cf-experimental/containerizer/blob/readme/README_images/cloning.png)
 tests
 
-5) Install https://visualstudiogallery.msdn.microsoft.com/7a52473f-9e1a-40f3-8bd8-6c00ab163609 in visual studio
+5) Install https://visualstudiogallery.msdn.microsoft.com/7a52473f-9e1a-40f3-8bd8-6c00ab163609
 
 6) Open Visual Studio in Administrator mode
 
