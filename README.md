@@ -9,8 +9,10 @@ setup
 2. Install http://msysgit.github.io/ for git on windows.
 3. Open Git Bash
 
-![My image](https://github.com/pivotal-cf-experimental/containerizer/blob/readme/README_images/git_bash.png)
+![git bash](https://github.com/pivotal-cf-experimental/containerizer/blob/readme/README_images/git_bash.png)
 
+4. Clone this repository
+![cloning](https://github.com/pivotal-cf-experimental/containerizer/blob/readme/README_images/cloning.png)
 tests
 =====
 
