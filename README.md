@@ -11,18 +11,18 @@ setup
 
 3) Install IIS: http://www.howtogeek.com/112455/how-to-install-iis-8-on-windows-8/ . Be sure to select ASP.NET and friends or the tests will fail with an unhelpful error message.
 
+4) Install https://visualstudiogallery.msdn.microsoft.com/7a52473f-9e1a-40f3-8bd8-6c00ab163609
+
 ![git bash](https://github.com/pivotal-cf-experimental/containerizer/blob/readme/README_images/iis_options.png)
 
-4) Open Git Bash
+5) Open Git Bash
 
 ![git bash](https://github.com/pivotal-cf-experimental/containerizer/blob/readme/README_images/git_bash.png)
 
-5) Clone this repository
+6) Clone this repository
 
 ![cloning](https://github.com/pivotal-cf-experimental/containerizer/blob/readme/README_images/cloning.png)
 tests
-
-6) Install https://visualstudiogallery.msdn.microsoft.com/7a52473f-9e1a-40f3-8bd8-6c00ab163609
 
 7) Open Visual Studio in Administrator mode
 
