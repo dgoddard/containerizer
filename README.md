@@ -18,13 +18,15 @@ setup
 ![cloning](https://github.com/pivotal-cf-experimental/containerizer/blob/readme/README_images/cloning.png)
 tests
 
-5) Open Visual Studio in Administrator mode
+5) Install https://visualstudiogallery.msdn.microsoft.com/7a52473f-9e1a-40f3-8bd8-6c00ab163609 in visual studio
+
+6) Open Visual Studio in Administrator mode
 
 ![opening as admin](https://github.com/pivotal-cf-experimental/containerizer/blob/readme/README_images/open_as_admin.png)
 
 ![visual studio running as admin](https://github.com/pivotal-cf-experimental/containerizer/blob/readme/README_images/showing_vs_running_as_admin.png)
 
-6) Open containerizer solution
+7) Open containerizer solution
 
 ![open project](https://github.com/pivotal-cf-experimental/containerizer/blob/readme/README_images/open_project.png)
 
@@ -35,4 +37,3 @@ tests
 tests
 =====
 
-Install https://visualstudiogallery.msdn.microsoft.com/7a52473f-9e1a-40f3-8bd8-6c00ab163609 in visual studio
