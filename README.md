@@ -24,6 +24,14 @@ tests
 
 ![visual studio running as admin](https://github.com/pivotal-cf-experimental/containerizer/blob/readme/README_images/showing_vs_running_as_admin.png)
 
+6) Open containerizer solution
+
+![open project](https://github.com/pivotal-cf-experimental/containerizer/blob/readme/README_images/open_project.png)
+
+![open details](https://github.com/pivotal-cf-experimental/containerizer/blob/readme/README_images/open_details.png)
+
+![open solution](https://github.com/pivotal-cf-experimental/containerizer/blob/readme/README_images/open_solution.png)
+
 tests
 =====
 
