@@ -38,6 +38,12 @@ tests
 
 ![open solution](https://github.com/pivotal-cf-experimental/containerizer/blob/readme/README_images/open_solution.png)
 
+9) Run tests
+
+![open solution](https://github.com/pivotal-cf-experimental/containerizer/blob/readme/README_images/open_tests.png)
+
+![open solution](https://github.com/pivotal-cf-experimental/containerizer/blob/readme/README_images/test_details.png)
+
 tests
 =====
 
