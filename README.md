@@ -9,24 +9,26 @@ setup
 
 2) Install http://msysgit.github.io/ for git on windows.
 
-3) Open Git Bash
+3) Install IIS: http://www.howtogeek.com/112455/how-to-install-iis-8-on-windows-8/
+
+4) Open Git Bash
 
 ![git bash](https://github.com/pivotal-cf-experimental/containerizer/blob/readme/README_images/git_bash.png)
 
-4) Clone this repository
+5) Clone this repository
 
 ![cloning](https://github.com/pivotal-cf-experimental/containerizer/blob/readme/README_images/cloning.png)
 tests
 
-5) Install https://visualstudiogallery.msdn.microsoft.com/7a52473f-9e1a-40f3-8bd8-6c00ab163609
+6) Install https://visualstudiogallery.msdn.microsoft.com/7a52473f-9e1a-40f3-8bd8-6c00ab163609
 
-6) Open Visual Studio in Administrator mode
+7) Open Visual Studio in Administrator mode
 
 ![opening as admin](https://github.com/pivotal-cf-experimental/containerizer/blob/readme/README_images/open_as_admin.png)
 
 ![visual studio running as admin](https://github.com/pivotal-cf-experimental/containerizer/blob/readme/README_images/showing_vs_running_as_admin.png)
 
-7) Open containerizer solution
+8) Open containerizer solution
 
 ![open project](https://github.com/pivotal-cf-experimental/containerizer/blob/readme/README_images/open_project.png)
 
