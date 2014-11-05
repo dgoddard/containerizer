@@ -6,7 +6,9 @@ A containerization solution for Windows
 setup
 =====
 1) Install Visual Studio 2013 (tested under professional).
+
 2) Install http://msysgit.github.io/ for git on windows.
+
 3) Open Git Bash
 
 ![git bash](https://github.com/pivotal-cf-experimental/containerizer/blob/readme/README_images/git_bash.png)
