@@ -9,7 +9,9 @@ setup
 
 2) Install http://msysgit.github.io/ for git on windows.
 
-3) Install IIS: http://www.howtogeek.com/112455/how-to-install-iis-8-on-windows-8/
+3) Install IIS: http://www.howtogeek.com/112455/how-to-install-iis-8-on-windows-8/ . Be sure to select ASP.NET and friends or the tests will fail with an unhelpful error message.
+
+![git bash](https://github.com/pivotal-cf-experimental/containerizer/blob/readme/README_images/iis_options.png)
 
 4) Open Git Bash
 
