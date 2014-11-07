@@ -87,6 +87,7 @@
     <Compile Include="DebuggerShim.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Specs\Features\ConsumerCanCreateNewContainerSpec.cs" />
+    <Compile Include="Specs\Features\ConsumerCanGetFileSystemContentsAsTarStream.cs" />
     <Compile Include="Specs\Helpers.cs" />
     <Compile Include="Specs\Services\ContainersServicesSpec.cs" />
     <Compile Include="Startup.cs" />
@@ -95,6 +96,10 @@
     <ProjectReference Include="..\Containerizer\Containerizer.csproj">
       <Project>{8811bc19-201c-4487-a264-c6704d245010}</Project>
       <Name>Containerizer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\tar-cs\tar-cs.csproj">
+      <Project>{b9189786-191b-42c7-8029-244e0da8da21}</Project>
+      <Name>tar-cs</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

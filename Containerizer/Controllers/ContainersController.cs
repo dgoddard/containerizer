@@ -25,6 +25,7 @@ namespace Containerizer.Controllers
             this.createContainerService = createContainerService;
         }
 
+        [Route("api/containers")]
         public async Task<IHttpActionResult> Post()
         {
             try
@@ -37,5 +38,6 @@ namespace Containerizer.Controllers
                 return this.InternalServerError(ex);
             }
         }
+
     }
 }
