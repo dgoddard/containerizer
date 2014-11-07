@@ -75,6 +75,29 @@ namespace Containerizer.Tests
 
             };
         }
+
+        void describe_get_files()
+        {
+            context["when the file exists"] = () =>
+            {
+                HttpResponseMessage result = null;
+                before = () =>
+                {
+                    result = containersController
+                        .StreamOut("fred.txt").GetAwaiter().GetResult();
+                };
+                 
+
+                it["returns a successful status code"] = () =>
+                {
+                    result.IsSuccessStatusCode.should_be_true();
+                };
+
+                it["returns the file in a tar ball"] = () =>
+                {
+                };
+            };
+        }
     }
 }
 

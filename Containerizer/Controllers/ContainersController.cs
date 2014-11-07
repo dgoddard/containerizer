@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -7,6 +8,7 @@ using System.Web.Http;
 using Newtonsoft.Json;
 using Containerizer.Services.Interfaces;
 using System.Threading.Tasks;
+using tar_cs;
 
 namespace Containerizer.Controllers
 {
@@ -39,5 +41,17 @@ namespace Containerizer.Controllers
             }
         }
 
+        [Route("api/containers/{id}/files")]
+        public  Task<HttpResponseMessage> StreamOut(string source)
+        {
+            var outStream = new MemoryStream();
+            using (var tar = new TarWriter(outStream))
+            {
+                tar.Write(source);
+            }
+            var response = Request.CreateResponse();
+            response.Content = new StreamContent(outStream);
+            return Task.FromResult(response);
+        }
     }
 }
