@@ -18,6 +18,8 @@ namespace Containerizer
         {
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterType<CreateContainerService>().As<ICreateContainerService>();
+            containerBuilder.RegisterType<ContainerPathService>().As<IContainerPathService>();
+            containerBuilder.RegisterType<StreamOutService>().As<IStreamOutService>();
             containerBuilder.RegisterType<ContainersController>();
             this.container = containerBuilder.Build();
         }

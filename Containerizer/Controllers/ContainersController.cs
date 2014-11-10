@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Runtime.InteropServices.ComTypes;
 using System.Web.Http;
 using Newtonsoft.Json;
 using Containerizer.Services.Interfaces;
@@ -21,10 +22,12 @@ namespace Containerizer.Controllers
     public class ContainersController : ApiController
     {
         private ICreateContainerService createContainerService;
+        private IStreamOutService streamOutService;
 
-        public ContainersController(ICreateContainerService createContainerService)
+        public ContainersController(ICreateContainerService createContainerService, IStreamOutService streamOutService)
         {
             this.createContainerService = createContainerService;
+            this.streamOutService = streamOutService;
         }
 
         [Route("api/containers")]
@@ -41,14 +44,11 @@ namespace Containerizer.Controllers
             }
         }
 
-        [Route("api/containers/{id}/files")]
-        public  Task<HttpResponseMessage> StreamOut(string source)
+        [Route("api/containers/{id}/files/{fileName}")]
+        [HttpGet]
+        public  Task<HttpResponseMessage> StreamOut(string id, string fileName)
         {
-            var outStream = new MemoryStream();
-            using (var tar = new TarWriter(outStream))
-            {
-                tar.Write(source);
-            }
+            var outStream = streamOutService.StreamFile(id, fileName);
             var response = Request.CreateResponse();
             response.Content = new StreamContent(outStream);
             return Task.FromResult(response);

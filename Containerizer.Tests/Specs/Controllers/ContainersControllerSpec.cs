@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using NSpec;
 using System.Linq;
 using System.Web.Http.Results;
@@ -15,11 +16,13 @@ namespace Containerizer.Tests
     {
         Containerizer.Controllers.ContainersController containersController;
         Mock<ICreateContainerService> mockCreateContainerService;
+        Mock<IStreamOutService> mockStreamOutService;
 
         void before_each()
         {
             mockCreateContainerService = new Mock<ICreateContainerService>();
-            containersController = new Controllers.ContainersController(mockCreateContainerService.Object);
+            mockStreamOutService = new Mock<IStreamOutService>();
+            containersController = new Controllers.ContainersController(mockCreateContainerService.Object, mockStreamOutService.Object);
             containersController.Configuration = new System.Web.Http.HttpConfiguration();
             containersController.Request = new HttpRequestMessage();
         }
@@ -83,18 +86,25 @@ namespace Containerizer.Tests
                 HttpResponseMessage result = null;
                 before = () =>
                 {
+                    mockStreamOutService.Setup(x => x.StreamFile(It.IsAny<string>(), It.IsAny<string>() )).Returns(() =>
+                    {
+
+                        var stream = new MemoryStream();
+                        var writer = new StreamWriter(stream);
+                        writer.Write("hello");
+                        writer.Flush();
+                        stream.Position = 0;
+                        return stream;
+                    });
+
                     result = containersController
-                        .StreamOut("fred.txt").GetAwaiter().GetResult();
+                        .StreamOut("guid", "file.txt").GetAwaiter().GetResult();
                 };
-                 
+
 
                 it["returns a successful status code"] = () =>
                 {
                     result.IsSuccessStatusCode.should_be_true();
-                };
-
-                it["returns the file in a tar ball"] = () =>
-                {
                 };
             };
         }
