@@ -17,21 +17,18 @@ namespace Containerizer.Tests
     class StreamOutServiceSpec : nspec
     {
         StreamOutService streamOutService;
-        ServerManager serverManager;
         private string id;
-        private string path;
-        private string content;
-        private IContainerPathService containerPathService;
+        private string actualPath;
+        private Mock<IContainerPathService> mockIContainerPathService;
+        private Mock<ITarStreamService> mockITarStreamService;
+        private System.IO.Stream expectedStream;
 
         void before_each()
         {
-            containerPathService = new ContainerPathService();
-            streamOutService = new StreamOutService(containerPathService);
+            mockIContainerPathService = new Mock<IContainerPathService>();
+            mockITarStreamService = new Mock<ITarStreamService>();
+            streamOutService = new StreamOutService(mockIContainerPathService.Object, mockITarStreamService.Object);
             id = Guid.NewGuid().ToString();
-            path = Path.Combine(containerPathService.GetContainerRoot(id), "file.txt");
-            content = Guid.NewGuid().ToString();
-            containerPathService.CreateContainerDirectory(id);
-            File.WriteAllText(path, content);
         }
 
         void describe_stream_out()
@@ -40,23 +37,28 @@ namespace Containerizer.Tests
             
             before = () =>
             {
+                mockIContainerPathService.Setup(x => x.GetContainerRoot(It.IsAny<string>()))
+                    .Returns(() =>  @"C:\a\path" );
+                mockITarStreamService.Setup(x => x.WriteTarToStream(It.IsAny<string>()))
+                    .Returns((string path) =>
+                {
+                    expectedStream = new MemoryStream();
+                    actualPath = path;
+                    return expectedStream;
+                });
                 stream = streamOutService.StreamFile(id, "file.txt");
             };
 
-            it["streams out the contents of a file"] = () =>
+            it["returns a stream from the tarstreamer"] = () =>
             {
-                var reader = new StreamReader(stream);
-                reader.ReadToEnd().should_be(content);
-                reader.Close();
+                stream.should_be_same(expectedStream);
             };
 
+            it["passes the path combined with the id to tarstreamer"] = () =>
+            {
+                actualPath.should_be(Path.Combine(@"C:\a\path", "file.txt"));
+            };
         }
-
-        private void after_each()
-        {
-            File.Delete(path);
-        }
-
     }
 }
 

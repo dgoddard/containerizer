@@ -89,6 +89,7 @@
     <Compile Include="Specs\Features\ConsumerCanCreateNewContainerSpec.cs" />
     <Compile Include="Specs\Features\ConsumerCanGetFileSystemContentsAsTarStream.cs" />
     <Compile Include="Specs\Helpers.cs" />
+    <Compile Include="Specs\Services\TarStreamServiceSpec.cs" />
     <Compile Include="Specs\Services\ContainerPathServiceSpec.cs" />
     <Compile Include="Specs\Services\StreamOutServiceSpec.cs" />
     <Compile Include="Specs\Services\CreateContainersServiceSpec.cs" />

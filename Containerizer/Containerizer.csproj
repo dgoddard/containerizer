@@ -104,6 +104,7 @@
     <Compile Include="Services\Interfaces\IContainerPathService.cs" />
     <Compile Include="Services\Interfaces\ICreateContainerService.cs" />
     <Compile Include="Services\Interfaces\IStreamOutService.cs" />
+    <Compile Include="Services\Interfaces\ITarStreamService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
