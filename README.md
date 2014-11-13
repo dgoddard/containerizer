@@ -46,7 +46,7 @@ The acceptance tests spin up containerizer in IIS out of process and communicate
 
 1) Have the server running (i.e. stop execution after starting an acceptance test, but before letting it be killed at the end of the test). To be sure that the server is correctly running, you should allow at least one request to hit the server, or IIS might not spin it up right away.
 
-![open tests with breakpoint](https://github.com/pivotal-cf-experimental/containerizer/blob/readme/README_images/open_tests_with_breakpoint.png)
+![open tests with breakpoint](https://github.com/pivotal-cf-experimental/containerizer/blob/readme-debugging/README_images/open_tests_with_breakpoint.png)
 
 2) Open a new instance of Visual Studio as Administrator and open the Containerizer solution. Then, go in the debug menu and select "Attach to Process"
 
