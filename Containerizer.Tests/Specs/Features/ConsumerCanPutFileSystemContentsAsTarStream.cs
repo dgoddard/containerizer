@@ -13,7 +13,7 @@ using SharpCompress.Reader;
 
 namespace Containerizer.Tests
 {
-    class ConsumerCanGetFileSystemContentsAsTarStream : nspec
+    class ConsumerCanPutFileSystemContentsAsTarStream : nspec
     {
         string id;
         HttpClient client;
@@ -35,7 +35,7 @@ namespace Containerizer.Tests
             var json = JObject.Parse(response);
             id = json["id"].ToString();
             containerPath = new ContainerPathService().GetContainerRoot(id);
-            File.WriteAllText(Path.Combine(containerPath, "file.txt"), "stuff!!!!");
+            File.WriteAllText("file.tgz", "stuff!!!!");
         }
 
         void after_each()
@@ -45,23 +45,40 @@ namespace Containerizer.Tests
             Directory.Delete(containerPath, true);
         }
 
-        void describe_stream_out()
+        void describe_stream_in()
         {
-            context["when asking for a file"] = () =>
+            context["when putting a file"] = () =>
             {
-                it["streams the file as a tarball"] = () =>
-                {
-                    var getTask = client.GetAsync("/api/containers/" + id + "/files?source=file.txt").GetAwaiter().GetResult();
-                    getTask.IsSuccessStatusCode.should_be_true();
-                    var tgzStream = getTask.Content.ReadAsStreamAsync().GetAwaiter().GetResult();
-                    using (var tgz = ReaderFactory.Open(tgzStream))
-                    {
-                        tgz.MoveToNextEntry().should_be_true();
-                        tgz.Entry.Key.should_be("file.txt");
+                HttpResponseMessage response = null;
 
-                        tgz.MoveToNextEntry().should_be_false();
-                    }
+                before = () =>
+                {
+                    var content = new MultipartFormDataContent();
+                    var fileStream = new FileStream("file.tgz", FileMode.Open);
+                    var streamContent = new StreamContent(fileStream);
+                    content.Add(streamContent);
+                    var path = "/api/containers/" + id + "/files?destination=file.txt";
+                    response = client.PutAsync(path, streamContent).GetAwaiter().GetResult();
                 };
+
+                context["when the file doesn't exist"] = () =>
+                {
+                    it["creates the file"] = () =>
+                    {
+                        response.IsSuccessStatusCode.should_be_true();
+                        var fileContent = File.ReadAllText(Path.Combine(new ContainerPathService().GetContainerRoot(id), "file.txt"));
+                        fileContent.should_be("stuff!!!!");
+
+                    };
+                };
+
+                context["when the file already exists"] = () =>
+                {
+                    xit["overwrites the existing file"] = () =>
+                    {
+                    };
+                };
+
             };
         }
     }
