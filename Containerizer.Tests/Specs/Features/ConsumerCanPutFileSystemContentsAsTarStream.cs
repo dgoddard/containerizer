@@ -18,23 +18,12 @@ namespace Containerizer.Tests
         string id;
         HttpClient client;
         private string containerPath;
+        private int port;
 
         void before_each()
         {
-            var port = 8088;
+            port = 8088;
             Helpers.SetupSiteInIIS("Containerizer", "Containerizer.Tests", "ContainerizerTestsApplicationPool", port, true);
-
-            client = new HttpClient();
-            client.BaseAddress = new Uri("http://localhost:" + port.ToString());
-            var postTask = client.PostAsync("/api/Containers", new FormUrlEncodedContent(new List<KeyValuePair<string, string>>()));
-            postTask.Wait();
-            var postResult = postTask.Result;
-            var readTask = postResult.Content.ReadAsStringAsync();
-            readTask.Wait();
-            var response = readTask.Result;
-            var json = JObject.Parse(response);
-            id = json["id"].ToString();
-            containerPath = new ContainerPathService().GetContainerRoot(id);
             File.WriteAllText("file.tgz", "stuff!!!!");
         }
 
@@ -47,38 +36,48 @@ namespace Containerizer.Tests
 
         void describe_stream_in()
         {
-            context["when putting a file"] = () =>
+            context["given that I'm a consumer of the containerizer api"] = () =>
             {
-                HttpResponseMessage response = null;
+                HttpClient client = null;
 
                 before = () =>
                 {
-                    var content = new MultipartFormDataContent();
-                    var fileStream = new FileStream("file.tgz", FileMode.Open);
-                    var streamContent = new StreamContent(fileStream);
-                    content.Add(streamContent);
-                    var path = "/api/containers/" + id + "/files?destination=file.txt";
-                    response = client.PutAsync(path, streamContent).GetAwaiter().GetResult();
+                    client = new HttpClient();
+                    client.BaseAddress = new Uri("http://localhost:" + port.ToString());
                 };
 
-                context["when the file doesn't exist"] = () =>
+                context["there exists a container with a given id"] = () =>
                 {
-                    it["creates the file"] = () =>
+                    before = () =>
                     {
-                        response.IsSuccessStatusCode.should_be_true();
-                        var fileContent = File.ReadAllText(Path.Combine(new ContainerPathService().GetContainerRoot(id), "file.txt"));
-                        fileContent.should_be("stuff!!!!");
+                        id = Helpers.CreateContainer(port);
+                    };
 
+                    context["when I PUT a request to /api/Containers/:id/files?destination=file.txt"] = () =>
+                    {
+                        HttpResponseMessage responseMessage = null;
+                        before = () =>
+                        {
+                            var content = new MultipartFormDataContent();
+                            var fileStream = new FileStream("file.tgz", FileMode.Open);
+                            var streamContent = new StreamContent(fileStream);
+                            content.Add(streamContent);
+                            var path = "/api/containers/" + id + "/files?destination=file.txt";
+                            responseMessage = client.PutAsync(path, streamContent).GetAwaiter().GetResult();
+                        };
+
+                        it["returns a successful status code"] = () =>
+                        {
+                            responseMessage.IsSuccessStatusCode.should_be_true();
+                        };
+
+                        it["sees the new file in the container"] = () =>
+                        {
+                            var fileContent = File.ReadAllText(Path.Combine(new ContainerPathService().GetContainerRoot(id), "file.txt"));
+                            fileContent.should_be("stuff!!!!");
+                        };
                     };
                 };
-
-                context["when the file already exists"] = () =>
-                {
-                    xit["overwrites the existing file"] = () =>
-                    {
-                    };
-                };
-
             };
         }
     }
