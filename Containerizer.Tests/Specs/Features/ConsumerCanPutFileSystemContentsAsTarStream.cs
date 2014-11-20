@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
 using System.Text;
 using Containerizer.Services.Implementations;
 using NSpec;
@@ -44,7 +45,7 @@ namespace Containerizer.Tests
                 before = () =>
                 {
                     client = new HttpClient();
-                    client.BaseAddress = new Uri("http://localhost.:" + port.ToString());
+                    client.BaseAddress = new Uri("http://localhost:" + port.ToString());
                 };
 
                 context["there exists a container with a given id"] = () =>
@@ -61,9 +62,8 @@ namespace Containerizer.Tests
                         {
                             var content = new MultipartFormDataContent();
                             var fileStream = new FileStream("file.tgz", FileMode.Open);
-                            var stringContent = new StringContent("FirstName=MUH&LastName=Test", Encoding.UTF8, "multipart/form-data");
-                            content.Add(stringContent);
                             var streamContent = new StreamContent(fileStream);
+                            streamContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
                             content.Add(streamContent);
                             var path = "/api/containers/" + id + "/files?destination=file.txt";
                             responseMessage = client.PutAsync(path, streamContent).GetAwaiter().GetResult();

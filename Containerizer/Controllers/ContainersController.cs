@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Runtime.InteropServices.ComTypes;
+using System.Security.Cryptography;
 using System.Web.Http;
 using Newtonsoft.Json;
 using Containerizer.Services.Interfaces;
@@ -63,11 +64,10 @@ namespace Containerizer.Controllers
         [HttpPut]
         public async Task<HttpResponseMessage> StreamIn(string id, string destination)
         {
-            var provider = new MultipartMemoryStreamProvider();
+            var stream = await Request.Content.ReadAsStreamAsync();
+            streamInService.StreamInFile(stream, id, destination);
 
-            var result = await Request.Content.ReadAsMultipartAsync(provider);
-
-            return null;
+            return Request.CreateResponse(HttpStatusCode.OK);
 
         }
     }

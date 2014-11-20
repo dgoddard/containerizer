@@ -16,7 +16,7 @@ namespace Containerizer.Tests
 {
     class StreamInServiceSpec : nspec
     {
-        StreamOutService streamOutService;
+        StreamInService streamInService;
         private string id;
         private string actualPath;
         private Mock<IContainerPathService> mockIContainerPathService;
@@ -27,7 +27,7 @@ namespace Containerizer.Tests
         {
             mockIContainerPathService = new Mock<IContainerPathService>();
             mockITarStreamService = new Mock<ITarStreamService>();
-            streamOutService = new StreamOutService(mockIContainerPathService.Object, mockITarStreamService.Object);
+            streamInService = new StreamInService(mockIContainerPathService.Object, mockITarStreamService.Object);
             id = Guid.NewGuid().ToString();
         }
 
@@ -39,24 +39,17 @@ namespace Containerizer.Tests
             {
                 mockIContainerPathService.Setup(x => x.GetContainerRoot(It.IsAny<string>()))
                     .Returns(() =>  @"C:\a\path" );
-                mockITarStreamService.Setup(x => x.WriteTarToStream(It.IsAny<string>()))
-                    .Returns((string path) =>
-                {
-                    expectedStream = new MemoryStream();
-                    actualPath = path;
-                    return expectedStream;
-                });
-                stream = streamOutService.StreamOutFile(id, "file.txt");
+                stream = new MemoryStream();
+                streamInService.StreamInFile(stream, id, "file.txt");
             };
 
-            it["returns a stream from the tarstreamer"] = () =>
+            it["passes through its stream and combined path to tarstreamer"] = () =>
             {
-                stream.should_be_same(expectedStream);
-            };
+                mockITarStreamService.Verify(x => x.WriteTarStreamToPath(
+                    It.Is((Stream y) => stream.Equals(y)),
+                    It.Is((string p) => p.Equals(Path.Combine(@"C:\a\path", "file.txt")))
+                    ));
 
-            it["passes the path combined with the id to tarstreamer"] = () =>
-            {
-                actualPath.should_be(Path.Combine(@"C:\a\path", "file.txt"));
             };
         }
     }

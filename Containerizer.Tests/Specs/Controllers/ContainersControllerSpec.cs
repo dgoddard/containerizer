@@ -118,17 +118,29 @@ namespace Containerizer.Tests
                 string id = null;
                 const string fileName = "file.txt";
                 HttpResponseMessage result = null;
+                string content = null;
 
                 before = () =>
                 {
                     id = Guid.NewGuid().ToString();
+                    Stream stream = new MemoryStream();
+                    var sr = new StreamWriter(stream);
+                    content = Guid.NewGuid().ToString();
+                    sr.Write(content);
+                    sr.Flush();
+                    stream.Seek(0, SeekOrigin.Begin);
+                    containersController.Request.Content = new StreamContent(stream);
                     result = containersController.StreamIn(id, fileName).GetAwaiter().GetResult();
                 };
 
-                it["calls the stream in service with the passed in file name query parameter"] = () =>
+                it["calls the stream in service with the correct stream, passed in id, and file name query parameter"] = () =>
                 {
-                    mockStreamInService.Verify(x => x.StreamInFile(id, fileName));
+                    mockStreamInService.Verify(x => x.StreamInFile(
+                        It.Is((Stream y) => new StreamReader(y).ReadToEnd() == content),
+                        id,
+                        fileName));
                 };
+
 
                 it["returns a successful status code"] = () =>
                 {

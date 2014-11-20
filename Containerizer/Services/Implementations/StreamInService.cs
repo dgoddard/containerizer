@@ -19,9 +19,11 @@ namespace Containerizer.Services.Implementations
             this.tarStreamService = tarStreamService;
         }
 
-        public void StreamInFile(string id, string destination)
+        public void StreamInFile(Stream stream, string id, string destination)
         {
-            throw new NotImplementedException();
+            var rootDir = containerPathService.GetContainerRoot(id);
+            var path = Path.Combine(rootDir, destination);
+            tarStreamService.WriteTarStreamToPath(stream, path);
         }
     }
 }

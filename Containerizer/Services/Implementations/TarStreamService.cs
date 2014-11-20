@@ -58,6 +58,12 @@ namespace Containerizer
                 if (File.Exists(tarPath)) File.Delete(tarPath);
             }
         }
+
+
+        public void WriteTarStreamToPath(Stream steam, string filePath)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 

@@ -9,6 +9,6 @@ namespace Containerizer.Services.Interfaces
 {
     public interface IStreamInService
     {
-       void StreamInFile(string id, string destination);
+       void StreamInFile(Stream steam, string id, string destination);
     }
 }
