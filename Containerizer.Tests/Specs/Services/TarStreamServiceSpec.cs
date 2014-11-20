@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Mime;
 using NSpec;
 using System.IO;
 using System.Diagnostics;
@@ -16,6 +17,7 @@ namespace Containerizer.Tests
         string tmpDir;
         Stream tgzStream;
         TarStreamService tarStreamService;
+        private string destinationArchiveFileName;
 
         void before_each()
         {
@@ -27,8 +29,35 @@ namespace Containerizer.Tests
         void after_each()
         {
             Directory.Delete(tmpDir, true);
+            File.Delete(destinationArchiveFileName);
         }
 
+        void describe_WriteToStreamToPath()
+        {
+            context["when the tar stream contains a single file"] = () =>
+            {
+                before = () =>
+                {
+                    destinationArchiveFileName = Path.GetRandomFileName();
+                    Directory.CreateDirectory(tmpDir);
+                    File.WriteAllText(Path.Combine(tmpDir, "content.txt"), "content");
+                    new TarStreamService().CreateFromDirectory(tmpDir, destinationArchiveFileName);
+                    tgzStream = new FileStream(destinationArchiveFileName, FileMode.Open);
+                };
+
+                it["writes the file to disk"] = () =>
+                {
+                    tarStreamService.WriteTarStreamToPath(tgzStream, "output");
+                    File.ReadAllLines(Path.Combine("output", "content.txt")).should_be("content");
+                };
+
+            };
+
+            context["when the tar stream contains a directory"] = () =>
+            {
+
+            };
+        }
         void describe_CreateFromDirectory()
         {
             before = () =>

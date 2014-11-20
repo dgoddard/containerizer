@@ -25,7 +25,7 @@ namespace Containerizer
             return memStream;
         }
 
-        private void CreateFromDirectory(string sourceDirectoryName, string destinationArchiveFileName)
+        public void CreateFromDirectory(string sourceDirectoryName, string destinationArchiveFileName)
         {
             var tarPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName() + ".tar");
             try
