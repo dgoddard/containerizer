@@ -17,7 +17,6 @@ namespace Containerizer.Tests
         string tmpDir;
         Stream tgzStream;
         TarStreamService tarStreamService;
-        private string destinationArchiveFileName;
 
         void before_each()
         {
@@ -29,13 +28,14 @@ namespace Containerizer.Tests
         void after_each()
         {
             Directory.Delete(tmpDir, true);
-            File.Delete(destinationArchiveFileName);
         }
 
-        void describe_WriteToStreamToPath()
+        void describe_WriteTarStreamToPath()
         {
             context["when the tar stream contains a single file"] = () =>
             {
+                string destinationArchiveFileName = null;
+
                 before = () =>
                 {
                     destinationArchiveFileName = Path.GetRandomFileName();
@@ -49,6 +49,12 @@ namespace Containerizer.Tests
                 {
                     tarStreamService.WriteTarStreamToPath(tgzStream, "output");
                     File.ReadAllLines(Path.Combine("output", "content.txt")).should_be("content");
+                };
+
+                after = () =>
+                {
+                    tgzStream.Close();
+                    File.Delete(destinationArchiveFileName);
                 };
 
             };

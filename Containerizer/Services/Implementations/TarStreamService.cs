@@ -1,5 +1,6 @@
 ﻿using Containerizer.Services.Interfaces;
 using SharpCompress.Common;
+using SharpCompress.Reader;
 using SharpCompress.Writer;
 using System;
 using System.Collections.Generic;
@@ -60,9 +61,16 @@ namespace Containerizer
         }
 
 
-        public void WriteTarStreamToPath(Stream steam, string filePath)
+        public void WriteTarStreamToPath(Stream stream, string filePath)
         {
-            throw new NotImplementedException();
+            var reader = ReaderFactory.Open(stream);
+            while (reader.MoveToNextEntry())
+            {
+                if (!reader.Entry.IsDirectory)
+                {
+                    reader.WriteEntryToDirectory(filePath, ExtractOptions.ExtractFullPath | ExtractOptions.Overwrite);
+                }
+            }
         }
     }
 }
