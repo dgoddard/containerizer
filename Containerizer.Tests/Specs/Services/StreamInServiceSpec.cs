@@ -14,7 +14,7 @@ using System.IO;
 
 namespace Containerizer.Tests
 {
-    class StreamOutServiceSpec : nspec
+    class StreamInServiceSpec : nspec
     {
         StreamOutService streamOutService;
         private string id;
@@ -31,7 +31,7 @@ namespace Containerizer.Tests
             id = Guid.NewGuid().ToString();
         }
 
-        void describe_stream_out()
+        void describe_stream_in()
         {
             System.IO.Stream stream = null;
             

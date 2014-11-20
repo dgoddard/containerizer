@@ -17,12 +17,14 @@ namespace Containerizer.Tests
         Containerizer.Controllers.ContainersController containersController;
         Mock<ICreateContainerService> mockCreateContainerService;
         Mock<IStreamOutService> mockStreamOutService;
+        Mock<IStreamInService> mockStreamInService;
 
         void before_each()
         {
             mockCreateContainerService = new Mock<ICreateContainerService>();
             mockStreamOutService = new Mock<IStreamOutService>();
-            containersController = new Controllers.ContainersController(mockCreateContainerService.Object, mockStreamOutService.Object);
+            mockStreamInService = new Mock<IStreamInService>();
+            containersController = new Controllers.ContainersController(mockCreateContainerService.Object, mockStreamInService.Object, mockStreamOutService.Object);
             containersController.Configuration = new System.Web.Http.HttpConfiguration();
             containersController.Request = new HttpRequestMessage();
         }
@@ -86,7 +88,7 @@ namespace Containerizer.Tests
                 HttpResponseMessage result = null;
                 before = () =>
                 {
-                    mockStreamOutService.Setup(x => x.StreamFile(It.IsAny<string>(), It.IsAny<string>() )).Returns(() =>
+                    mockStreamOutService.Setup(x => x.StreamOutFile(It.IsAny<string>(), It.IsAny<string>() )).Returns(() =>
                     {
 
                         var stream = new MemoryStream();
@@ -101,6 +103,32 @@ namespace Containerizer.Tests
                         .StreamOut("guid", "file.txt").GetAwaiter().GetResult();
                 };
 
+
+                it["returns a successful status code"] = () =>
+                {
+                    result.IsSuccessStatusCode.should_be_true();
+                };
+            };
+        }
+
+        void describe_put_files()
+        {
+            context["when it receives a new file"] = () =>
+            {
+                string id = null;
+                const string fileName = "file.txt";
+                HttpResponseMessage result = null;
+
+                before = () =>
+                {
+                    id = Guid.NewGuid().ToString();
+                    result = containersController.StreamIn(id, fileName).GetAwaiter().GetResult();
+                };
+
+                it["calls the stream in service with the passed in file name query parameter"] = () =>
+                {
+                    mockStreamInService.Verify(x => x.StreamInFile(id, fileName));
+                };
 
                 it["returns a successful status code"] = () =>
                 {

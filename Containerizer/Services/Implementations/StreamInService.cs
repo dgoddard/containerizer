@@ -8,23 +8,20 @@ using Containerizer.Services.Interfaces;
 
 namespace Containerizer.Services.Implementations
 {
-    public class StreamOutService : IStreamOutService
+    public class StreamInService : IStreamInService
     {
         private readonly IContainerPathService containerPathService;
         private ITarStreamService tarStreamService;
 
-        public StreamOutService(IContainerPathService containerPathService, ITarStreamService tarStreamService)
+        public StreamInService(IContainerPathService containerPathService, ITarStreamService tarStreamService)
         {
             this.containerPathService = containerPathService;
             this.tarStreamService = tarStreamService;
         }
 
-        public System.IO.Stream StreamOutFile(string id, string source)
+        public void StreamInFile(string id, string destination)
         {
-            var rootDir = containerPathService.GetContainerRoot(id);
-            var path = Path.Combine(rootDir, source);
-            var stream = tarStreamService.WriteTarToStream(path);
-            return stream;
+            throw new NotImplementedException();
         }
     }
 }

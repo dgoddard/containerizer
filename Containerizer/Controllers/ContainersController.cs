@@ -20,13 +20,19 @@ namespace Containerizer.Controllers
 
     public class ContainersController : ApiController
     {
-        private ICreateContainerService createContainerService;
-        private IStreamOutService streamOutService;
+        private readonly ICreateContainerService createContainerService;
+        private readonly IStreamOutService streamOutService;
+        private IStreamInService streamInService;
 
-        public ContainersController(ICreateContainerService createContainerService, IStreamOutService streamOutService)
+        public ContainersController(
+            ICreateContainerService createContainerService,
+            IStreamInService streamInService,
+            IStreamOutService streamOutService
+        )
         {
             this.createContainerService = createContainerService;
             this.streamOutService = streamOutService;
+            this.streamInService = streamInService;
         }
 
         [Route("api/containers")]
@@ -34,8 +40,8 @@ namespace Containerizer.Controllers
         {
             try
             {
-               var id = await createContainerService.CreateContainer();
-               return Json(new CreateResponse { Id = id });
+                var id = await createContainerService.CreateContainer();
+                return Json(new CreateResponse { Id = id });
             }
             catch (CouldNotCreateContainerException ex)
             {
@@ -45,12 +51,24 @@ namespace Containerizer.Controllers
 
         [Route("api/containers/{id}/files")]
         [HttpGet]
-        public  Task<HttpResponseMessage> StreamOut(string id, string source)
+        public Task<HttpResponseMessage> StreamOut(string id, string source)
         {
-            var outStream = streamOutService.StreamFile(id, source);
+            var outStream = streamOutService.StreamOutFile(id, source);
             var response = Request.CreateResponse();
             response.Content = new StreamContent(outStream);
             return Task.FromResult(response);
+        }
+
+        [Route("api/containers/{id}/files")]
+        [HttpPut]
+        public async Task<HttpResponseMessage> StreamIn(string id, string destination)
+        {
+            var provider = new MultipartMemoryStreamProvider();
+
+            var result = await Request.Content.ReadAsMultipartAsync(provider);
+
+            return null;
+
         }
     }
 }

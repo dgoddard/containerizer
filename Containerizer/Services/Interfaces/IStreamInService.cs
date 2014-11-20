@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace Containerizer.Services.Interfaces
 {
-    public interface IStreamOutService
+    public interface IStreamInService
     {
-        System.IO.Stream StreamOutFile(string id, string source);
+       void StreamInFile(string id, string destination);
     }
 }
