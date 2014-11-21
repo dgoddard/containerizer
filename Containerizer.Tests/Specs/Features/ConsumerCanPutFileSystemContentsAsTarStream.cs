@@ -15,25 +15,33 @@ using SharpCompress.Reader;
 
 namespace Containerizer.Tests
 {
+
     class ConsumerCanPutFileSystemContentsAsTarStream : nspec
     {
         string id;
         HttpClient client;
-        private string containerPath;
         private int port;
+        private string directoryPath;
+        private string tgzName;
 
         void before_each()
         {
             port = 8088;
             Helpers.SetupSiteInIIS("Containerizer", "Containerizer.Tests", "ContainerizerTestsApplicationPool", port, true);
-            File.WriteAllText("file.tgz", "stuff!!!!");
+            directoryPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            Directory.CreateDirectory(directoryPath);
+            File.WriteAllText(Path.Combine(directoryPath, "file.txt"), "stuff!!!!");
+            tgzName = Guid.NewGuid().ToString();
+            new TarStreamService().CreateFromDirectory(directoryPath, tgzName);
         }
 
         void after_each()
         {
             Helpers.RemoveExistingSite("Containerizer.Tests", "ContainerizerTestsApplicationPool");
             Helpers.RemoveExistingSite(id, id);
-            Directory.Delete(containerPath, true);
+            Directory.Delete(directoryPath, true);
+            Directory.Delete(new ContainerPathService().GetContainerRoot(id), true);
+            
         }
 
         void describe_stream_in()
@@ -55,17 +63,19 @@ namespace Containerizer.Tests
                         id = Helpers.CreateContainer(port);
                     };
 
-                    context["when I PUT a request to /api/Containers/:id/files?destination=file.txt"] = () =>
+                    context["when I PUT a request to /api/Containers/:id/files?destination=%2F"] = () =>
                     {
                         HttpResponseMessage responseMessage = null;
+                        Stream fileStream = null;
+
                         before = () =>
                         {
                             var content = new MultipartFormDataContent();
-                            var fileStream = new FileStream("file.tgz", FileMode.Open);
+                            fileStream = new FileStream(tgzName, FileMode.Open);
                             var streamContent = new StreamContent(fileStream);
                             streamContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
                             content.Add(streamContent);
-                            var path = "/api/containers/" + id + "/files?destination=file.txt";
+                            var path = "/api/containers/" + id + "/files?destination=%2F";
                             responseMessage = client.PutAsync(path, streamContent).GetAwaiter().GetResult();
                             var x = 1;
                         };
@@ -79,6 +89,11 @@ namespace Containerizer.Tests
                         {
                             var fileContent = File.ReadAllText(Path.Combine(new ContainerPathService().GetContainerRoot(id), "file.txt"));
                             fileContent.should_be("stuff!!!!");
+                        };
+
+                        after = () =>
+                        {
+                            fileStream.Close();
                         };
                     };
                 };

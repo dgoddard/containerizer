@@ -14,6 +14,7 @@ using System.IO;
 
 namespace Containerizer.Tests
 {
+
     class StreamInServiceSpec : nspec
     {
         StreamInService streamInService;
@@ -37,17 +38,27 @@ namespace Containerizer.Tests
             
             before = () =>
             {
-                mockIContainerPathService.Setup(x => x.GetContainerRoot(It.IsAny<string>()))
-                    .Returns(() =>  @"C:\a\path" );
+                mockIContainerPathService.Setup(x => x.GetSubdirectory(It.IsAny<string>(), It.IsAny<string>()))
+                    .Returns(() =>  @"C:\a\path\file.txt" );
                 stream = new MemoryStream();
                 streamInService.StreamInFile(stream, id, "file.txt");
             };
 
             it["passes through its stream and combined path to tarstreamer"] = () =>
             {
+                Func<Stream, bool> verifyStream = (x) =>
+                {
+                    return stream.Equals(x);
+                };
+
+                Func<String, bool> verifyPath = (x) =>
+                {
+                    return x.Equals(Path.Combine(@"C:\a\path", "file.txt"));
+                };
+
                 mockITarStreamService.Verify(x => x.WriteTarStreamToPath(
-                    It.Is((Stream y) => stream.Equals(y)),
-                    It.Is((string p) => p.Equals(Path.Combine(@"C:\a\path", "file.txt")))
+                    It.Is((Stream y) => verifyStream(y)),
+                    It.Is((String y) => verifyPath(y))
                     ));
 
             };

@@ -21,8 +21,7 @@ namespace Containerizer.Services.Implementations
 
         public void StreamInFile(Stream stream, string id, string destination)
         {
-            var rootDir = containerPathService.GetContainerRoot(id);
-            var path = Path.Combine(rootDir, destination);
+            var path = containerPathService.GetSubdirectory(id, destination);
             tarStreamService.WriteTarStreamToPath(stream, path);
         }
     }
