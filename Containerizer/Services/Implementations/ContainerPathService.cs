@@ -23,7 +23,7 @@ namespace Containerizer.Services.Implementations
 
         public string GetSubdirectory(string id, string destination)
         {
-            return Path.Combine(GetContainerRoot(id), destination);
+            return Path.GetFullPath(GetContainerRoot(id) + destination);
         }
     }
 }
