@@ -43,13 +43,12 @@ namespace Containerizer.Tests.Specs.Services
                 {
                     it["removes the port 0 binding"] = () =>
                     {
-                        var serverManager = new ServerManager();
-                        var existingSite = serverManager.Sites.First(x => x.Name == containerId);
-
+                        var existingSite = new ServerManager().Sites.First(x => x.Name == containerId);
                         existingSite.Bindings.Any(x => x.EndPoint.Port == 0).should_be_true();
 
                         new NetInService().AddPort(7868, containerId);
 
+                        existingSite = new ServerManager().Sites.First(x => x.Name == containerId);
                         existingSite.Bindings.Any(x => x.EndPoint.Port == 0).should_be_false();
                     };
                 };
@@ -58,7 +57,8 @@ namespace Containerizer.Tests.Specs.Services
                 {
                     it["picks an unused port and returns it"] = () =>
                     {
-
+                        var port = new NetInService().AddPort(0, containerId);
+                        port.should_not_be(0);
                     };
 
                 };
