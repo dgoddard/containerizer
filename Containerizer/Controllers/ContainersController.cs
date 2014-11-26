@@ -17,21 +17,25 @@ namespace Containerizer.Controllers
         public string Id { get; set; }
     }
 
+    public class NetInResponse
+    {
+        [JsonProperty("hostPort")]
+        public int HostPort { get; set; }
+    }
+
     public class ContainersController : ApiController
     {
         private readonly ICreateContainerService createContainerService;
         private readonly IStreamInService streamInService;
         private readonly IStreamOutService streamOutService;
+        private readonly INetInService netInService;
 
-        public ContainersController(
-            ICreateContainerService createContainerService,
-            IStreamInService streamInService,
-            IStreamOutService streamOutService
-            )
+        public ContainersController(ICreateContainerService createContainerService, IStreamInService streamInService, IStreamOutService streamOutService, INetInService netInService)
         {
             this.createContainerService = createContainerService;
             this.streamOutService = streamOutService;
             this.streamInService = streamInService;
+            this.netInService = netInService;
         }
 
         [Route("api/containers")]
@@ -76,5 +80,14 @@ namespace Containerizer.Controllers
 
             return Request.CreateResponse(HttpStatusCode.OK);
         }
+
+        [Route("api/containers/{id}/net/inasdasd")]
+        [HttpPost]
+        public IHttpActionResult NetIn(string id, int hostPort)
+        {
+            hostPort = netInService.AddPort(hostPort, id);
+            return Json(new NetInResponse { HostPort = hostPort });
+        }
+
     }
 }
