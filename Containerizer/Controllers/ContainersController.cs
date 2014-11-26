@@ -81,8 +81,15 @@ namespace Containerizer.Controllers
             return Request.CreateResponse(HttpStatusCode.OK);
         }
 
-        [Route("api/containers/{id}/net/inasdasd")]
+        [Route("api/containers/{id}/net/in")]
         [HttpPost]
+        public IHttpActionResult NetIn(string id)
+        {
+            var hostPort = -1;
+            hostPort = netInService.AddPort(hostPort, id);
+            return Json(new NetInResponse { HostPort = hostPort });
+        }
+
         public IHttpActionResult NetIn(string id, int hostPort)
         {
             hostPort = netInService.AddPort(hostPort, id);

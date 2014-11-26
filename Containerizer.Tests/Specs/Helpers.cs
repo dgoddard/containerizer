@@ -131,11 +131,11 @@ namespace Containerizer.Tests.Specs
             {
                 if (tcpi.LocalEndPoint.Port == port)
                 {
-                    return false;
+                    return true;
                 }
             }
 
-            return true;
+            return false;
         }
     }
 }

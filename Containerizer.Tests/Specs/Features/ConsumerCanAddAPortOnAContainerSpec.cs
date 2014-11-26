@@ -71,9 +71,19 @@ namespace Containerizer.Tests.Specs.Features
                                 postResult.IsSuccessStatusCode.should_be_true();
                             };
 
-                            it["And I can connect to the server listening on the given port"] = () =>
+                            context["When I start the server process (FIXME ; should I be needed?)"] = () =>
                             {
-                                Helpers.PortIsUsed(containerPort).should_be_true();
+                                before = () =>
+                                {
+                                    var serverManager = new ServerManager();
+                                    var existingSite = serverManager.Sites.First(x => x.Name == containerId);
+                                    existingSite.Start();
+                                };
+                                
+                                it["Then I can connect to the server listening on the given port"] = () =>
+                                {
+                                    Helpers.PortIsUsed(containerPort).should_be_true();
+                                };
                             };
                         };
                     };
