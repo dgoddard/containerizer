@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.NetworkInformation;
 using System.Reflection;
 using Microsoft.Web.Administration;
 using Newtonsoft.Json.Linq;
@@ -14,9 +15,8 @@ namespace Containerizer.Tests.Specs
     {
 
         /// <returns>The newly created container's id.</returns>
-        public static String CreateContainer(int port)
+        public static string CreateContainer(HttpClient client)
         {
-            var client = new HttpClient {BaseAddress = new Uri("http://localhost:" + port.ToString())};
             var postTask = client.PostAsync("/api/Containers",
                 new FormUrlEncodedContent(new List<KeyValuePair<string, string>>()));
             postTask.Wait();
@@ -120,6 +120,22 @@ namespace Containerizer.Tests.Specs
             }
 
             return MockEventArgs;
+        }
+
+        public static bool PortIsUsed(int port)
+        {
+            IPGlobalProperties ipGlobalProperties = IPGlobalProperties.GetIPGlobalProperties();
+            TcpConnectionInformation[] tcpConnInfoArray = ipGlobalProperties.GetActiveTcpConnections();
+
+            foreach (TcpConnectionInformation tcpi in tcpConnInfoArray)
+            {
+                if (tcpi.LocalEndPoint.Port == port)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

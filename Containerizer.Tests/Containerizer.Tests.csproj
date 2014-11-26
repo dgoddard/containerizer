@@ -97,6 +97,7 @@
     <Compile Include="DebuggerShim.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Specs\Facades\FakeAspNetWebSocketContext.cs" />
+    <Compile Include="Specs\Features\ConsumerCanAddAPortOnAContainerSpec.cs" />
     <Compile Include="Specs\Features\ConsumerCanCreateNewContainerSpec.cs" />
     <Compile Include="Specs\Features\ConsumerCanGetFileSystemContentsAsTarStreamSpec.cs" />
     <Compile Include="Specs\Features\ConsumerCanPutFileSystemContentsAsTarStreamSpec.cs" />
