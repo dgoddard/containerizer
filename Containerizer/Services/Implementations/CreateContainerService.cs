@@ -10,22 +10,23 @@ namespace Containerizer.Services.Implementations
 {
     public class CreateContainerService : ICreateContainerService
     {
-        public Task<string> CreateContainer()
+        public Task<string> CreateContainer(string id)
         {
             return Task.Factory.StartNew(() =>
             {
                 try
                 {
-                    string id = Guid.NewGuid().ToString();
                     ServerManager serverManager = ServerManager.OpenRemote("localhost");
                     string rootDir =
                         Directory.GetDirectoryRoot(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
                     string path = Path.Combine(rootDir, "containerizer", id);
                     Site site = serverManager.Sites.Add(id, path, 0);
 
-                    serverManager.ApplicationPools.Add(id);
-                    site.Applications[0].ApplicationPoolName = id;
-                    ApplicationPool appPool = serverManager.ApplicationPools[id];
+                    // FIXME: test removing dashes from app pool name
+                    var appPoolId = id.Replace("-", "");
+                    serverManager.ApplicationPools.Add(appPoolId);
+                    site.Applications[0].ApplicationPoolName = appPoolId;
+                    ApplicationPool appPool = serverManager.ApplicationPools[appPoolId];
                     appPool.ManagedPipelineMode = ManagedPipelineMode.Integrated;
 
                     serverManager.CommitChanges();

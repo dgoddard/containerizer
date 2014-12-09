@@ -79,8 +79,8 @@ namespace Containerizer.Tests.Specs.Controllers
 
                 before = () =>
                 {
-                    containerId = Guid.NewGuid().ToString();
-                    mockCreateContainerService.Setup(x => x.CreateContainer()).ReturnsAsync(containerId);
+                    containerId = "NewContainerID";
+                    mockCreateContainerService.Setup(x => x.CreateContainer(containerId)).ReturnsAsync(containerId);
                 };
 
                 it["returns a successful status code"] = () =>
@@ -109,7 +109,7 @@ namespace Containerizer.Tests.Specs.Controllers
                 before =
                     () =>
                     {
-                        mockCreateContainerService.Setup(x => x.CreateContainer())
+                        mockCreateContainerService.Setup(x => x.CreateContainer(It.IsAny<string>()))
                             .ThrowsAsync(new CouldNotCreateContainerException(String.Empty, null));
                     };
 

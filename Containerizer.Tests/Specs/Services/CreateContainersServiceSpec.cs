@@ -24,7 +24,7 @@ namespace Containerizer.Tests.Specs.Services
         {
             before = () =>
             {
-                Task<string> task = createContainerService.CreateContainer();
+                Task<string> task = createContainerService.CreateContainer("NewContainerID");
                 task.Wait();
                 id = task.Result;
             };
