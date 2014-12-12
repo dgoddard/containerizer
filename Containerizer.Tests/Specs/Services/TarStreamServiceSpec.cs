@@ -35,7 +35,7 @@ namespace Containerizer.Tests.Specs.Services
                 Directory.CreateDirectory(Path.Combine(tmpDir, "fooDir"));
                 File.WriteAllText(Path.Combine(tmpDir, "content.txt"), "content");
                 File.WriteAllText(Path.Combine(tmpDir, "fooDir", "content.txt"), "MOAR content");
-                new TarStreamService().CreateFromDirectory(tmpDir, destinationArchiveFileName);
+                new TarStreamService().CreateTarGzFromDirectory(tmpDir, destinationArchiveFileName);
                 tgzStream = new FileStream(destinationArchiveFileName, FileMode.Open);
             };
 

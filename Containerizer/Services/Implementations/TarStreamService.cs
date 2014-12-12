@@ -11,7 +11,7 @@ namespace Containerizer.Services.Implementations
         public Stream WriteTarToStream(string filePath)
         {
             string gzPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName() + ".gz");
-            CreateFromDirectory(filePath, gzPath);
+            CreateTarGzFromDirectory(filePath, gzPath);
             Stream stream = File.OpenRead(gzPath);
             var buffer = new byte[stream.Length];
             stream.Read(buffer, 0, (int) stream.Length);
@@ -34,7 +34,45 @@ namespace Containerizer.Services.Implementations
             }
         }
 
-        public void CreateFromDirectory(string sourceDirectoryName, string destinationArchiveFileName)
+        public void CreateTarFromDirectory(string sourceDirectoryName, string destinationArchiveFileName)
+        {
+            string tarPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName() + ".tar");
+            try
+            {
+                using (Stream stream = File.OpenWrite(tarPath))
+                {
+                    using (
+                        IWriter writer = WriterFactory.Open(stream, ArchiveType.Tar,
+                            new CompressionInfo {Type = CompressionType.None}))
+                    {
+                        if (File.Exists(sourceDirectoryName))
+                        {
+                            var info = new FileInfo(sourceDirectoryName);
+                            writer.Write(info.Name, info);
+                        }
+                        else
+                        {
+                            writer.WriteAll(sourceDirectoryName, "*", SearchOption.AllDirectories);
+                        }
+                    }
+                }
+                using (Stream stream = File.OpenWrite(destinationArchiveFileName))
+                {
+                    using (
+                        IWriter writer = WriterFactory.Open(stream, ArchiveType.Tar,
+                            new CompressionInfo {Type = CompressionType.None}))
+                    {
+                        writer.Write("Tar.tar", tarPath);
+                    }
+                }
+            }
+            finally
+            {
+                if (File.Exists(tarPath)) File.Delete(tarPath);
+            }
+        }
+
+        public void CreateTarGzFromDirectory(string sourceDirectoryName, string destinationArchiveFileName)
         {
             string tarPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName() + ".tar");
             try
