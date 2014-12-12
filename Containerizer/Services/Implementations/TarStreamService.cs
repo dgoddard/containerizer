@@ -25,15 +25,8 @@ namespace Containerizer.Services.Implementations
 
         public void WriteTarStreamToPath(Stream stream, string filePath)
         {
-            // HackToGetAroundPoorSharpCompressStreamCapabilities(stream);
             IReader reader = ReaderFactory.Open(new BufferedStream(stream));
             reader.WriteAllToDirectory(filePath, ExtractOptions.ExtractFullPath | ExtractOptions.Overwrite);
-        }
-
-        private static void HackToGetAroundPoorSharpCompressStreamCapabilities(Stream stream)
-        {
-            new StreamReader(stream).ReadToEnd();
-            stream.Seek(0, 0);
         }
 
         public void CreateTarFromDirectory(string sourceDirectoryName, string destinationArchiveFileName)
