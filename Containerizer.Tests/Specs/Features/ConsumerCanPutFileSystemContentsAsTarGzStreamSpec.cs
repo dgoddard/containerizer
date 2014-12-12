@@ -7,7 +7,7 @@ using NSpec;
 
 namespace Containerizer.Tests.Specs.Features
 {
-    internal class ConsumerCanPutFileSystemContentsAsTarStream : nspec
+    internal class ConsumerCanPutFileSystemContentsAsTarGzStream : nspec
     {
         private string directoryPath;
         private string id;
@@ -24,7 +24,7 @@ namespace Containerizer.Tests.Specs.Features
             Directory.CreateDirectory(directoryPath);
             File.WriteAllText(Path.Combine(directoryPath, "file.txt"), "stuff!!!!");
             tgzName = Guid.NewGuid().ToString();
-            new TarStreamService().CreateTarFromDirectory(directoryPath, tgzName);
+            new TarStreamService().CreateTarGzFromDirectory(directoryPath, tgzName);
         }
 
         private void after_each()
