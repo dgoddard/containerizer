@@ -2,15 +2,18 @@
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 using Containerizer.Facades;
 using Containerizer.Services.Implementations;
 using Containerizer.Services.Interfaces;
+using Microsoft.Web.Administration;
 using Microsoft.Web.WebSockets;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Converters;
 
 namespace Containerizer.Controllers
 {
@@ -26,6 +29,12 @@ namespace Containerizer.Controllers
         public int HostPort { get; set; }
     }
 
+    public class GetPropertyResponse
+    {
+        [JsonProperty("value")]
+        public string Value { get; set; }
+    }
+
     public class ContainersController : ApiController
     {
         private readonly IContainerPathService containerPathService;
@@ -34,7 +43,9 @@ namespace Containerizer.Controllers
         private readonly IStreamOutService streamOutService;
         private readonly INetInService netInService;
 
-        public ContainersController(IContainerPathService containerPathService, ICreateContainerService createContainerService, IStreamInService streamInService, IStreamOutService streamOutService, INetInService netInService)
+        public ContainersController(IContainerPathService containerPathService,
+            ICreateContainerService createContainerService, IStreamInService streamInService,
+            IStreamOutService streamOutService, INetInService netInService)
         {
             this.containerPathService = containerPathService;
             this.createContainerService = createContainerService;
@@ -59,6 +70,11 @@ namespace Containerizer.Controllers
                 var content = await Request.Content.ReadAsStringAsync();
                 JObject json = JObject.Parse(content);
                 string id = await createContainerService.CreateContainer(json["Handle"].ToString());
+                
+                var application = HttpContext.Current.Application;
+                Dictionary<string, string> properties =
+                    JsonConvert.DeserializeObject<Dictionary<string, string>>(json["Properties"].ToString());
+                application[id] = properties;
                 return Json(new CreateResponse {Id = id});
             }
             catch (CouldNotCreateContainerException ex)
@@ -81,7 +97,8 @@ namespace Containerizer.Controllers
         [HttpGet]
         public Task<HttpResponseMessage> Run(string id)
         {
-            HttpContext.Current.AcceptWebSocketRequest(new ContainerProcessHandler(id, new ContainerPathService(), new ProcessFacade()));
+            HttpContext.Current.AcceptWebSocketRequest(new ContainerProcessHandler(id, new ContainerPathService(),
+                new ProcessFacade()));
             HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.SwitchingProtocols);
             return Task.FromResult(response);
         }
@@ -107,5 +124,70 @@ namespace Containerizer.Controllers
             return Json(new NetInResponse {HostPort = hostPort});
         }
 
+        [Route("api/containers/{id}/properties/{propertyKey}")]
+        [HttpGet]
+        public async Task<IHttpActionResult> GetProperty(string id, string propertyKey)
+        {
+            return
+                Json(new GetPropertyResponse
+                {
+                    Value = ((Dictionary<string, string>) HttpContext.Current.Application[id])[propertyKey]
+                });
+        }
+
+        [Route("api/containers/{id}/properties/{propertyKey}")]
+        [HttpPut]
+        public async Task<IHttpActionResult> SetProperty(string id, string propertyKey)
+        {
+            propertyKey = propertyKey.Replace("♥", ":");
+            var requestBody = await Request.Content.ReadAsStringAsync();
+            var application = HttpContext.Current.Application;
+            if (application[id] == null)
+            {
+                application[id] = new Dictionary<string, string>();
+                ((Dictionary<string, string>) application[id])["tag:foo"] = "bar";
+            }
+            ((Dictionary<string, string>) HttpContext.Current.Application[id])[propertyKey] = ((string) requestBody);
+            return Json(new GetPropertyResponse {Value = "I did a thing"});
+        }
+
+        [Route("api/containers/{id}/properties")]
+        [HttpGet]
+        public Task<HttpResponseMessage> GetProperties(string id)
+        {
+            var dictionary = (Dictionary<string, string>) HttpContext.Current.Application[id];
+            if (dictionary == null)
+            {
+                string ourJson = "{}";
+                var emptyResponse = new HttpResponseMessage()
+                {
+                    Content = new StringContent(
+                        ourJson,
+                        Encoding.UTF8,
+                        "application/json"
+                        )
+                };
+                return Task.FromResult(emptyResponse);
+            }
+            var jsonDictionary = JsonConvert.SerializeObject(dictionary, new KeyValuePairConverter());
+
+            //return Request.CreateResponse(jsonDictionary, "application/json");
+            var response = new HttpResponseMessage()
+            {
+                Content = new StringContent(
+                    jsonDictionary,
+                    Encoding.UTF8,
+                    "application/json"
+                    )
+            };
+            return Task.FromResult(response);
+        }
+
+        [Route("api/containers/{id}/properties/{propertyKey}")]
+        [HttpDelete]
+        public async Task<HttpResponseMessage> RemoveProperty(string id, string propertyKey)
+        {
+            return Request.CreateResponse(HttpStatusCode.OK);
+        }
     }
 }

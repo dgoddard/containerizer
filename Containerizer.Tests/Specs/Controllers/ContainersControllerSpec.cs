@@ -4,6 +4,7 @@ using System.IO;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Http;
 using Containerizer.Controllers;
 using Containerizer.Services.Interfaces;
@@ -12,6 +13,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NSpec;
 using Containerizer.Tests.Specs;
+using Microsoft.Web.Administration;
 
 namespace Containerizer.Tests.Specs.Controllers
 {
@@ -236,5 +238,23 @@ namespace Containerizer.Tests.Specs.Controllers
                 };
             };
         }
+
+        private void describe_get_property()
+        {
+            string containerId = null;
+            IHttpActionResult result = null;
+
+              before = () =>
+              {
+                  Dictionary<string, string> keypairs = new Dictionary<string, string>();
+                  keypairs.Add("best_animal", "hippo");
+                  HttpContext.Current.Application.Add("guid", keypairs);
+                    result = containersController
+                        .GetProperty("guid", "best_animal").GetAwaiter().GetResult();
+                };
+
+
+               // it["returns a successful status code"] = () => { result.IsSuccessStatusCode.should_be_true(); };
+            }
     }
 }
