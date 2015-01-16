@@ -12,7 +12,7 @@ using NSpec;
 
 namespace Containerizer.Tests.Specs.Services
 {
-    internal class ContainersServiceSpec : nspec
+    internal class ContainerServiceSpec : nspec
     {
         private void describe_()
         {
@@ -89,21 +89,29 @@ namespace Containerizer.Tests.Specs.Services
             {
                 string handle = null;
                 string appPoolName = null;
+                string path = null;
                 ServerManager serverManager = null;
 
                 before = () =>
                 {
                     handle = Guid.NewGuid() + "-" + Guid.NewGuid();
-                    appPoolName = "FakeAppPoolName";
-                    Helpers.SetupSiteInIIS(Directory.GetCurrentDirectory(), handle, appPoolName, 3333, false);
+                    appPoolName = Guid.NewGuid().ToString();
+                    path = new ContainerPathService().GetContainerRoot(handle);
+                    Directory.CreateDirectory(path);
+                    Helpers.SetupSiteInIIS(path, handle, appPoolName, 3333, false);
 
                     var containerService = new ContainerService();
                     serverManager = ServerManager.OpenRemote("localhost");
                     serverManager.Sites.should_contain(x => x.Name == handle);
                     serverManager.ApplicationPools.should_contain(x => x.Name == appPoolName);
+                    Directory.Exists(path).should_be_true();
 
                     containerService.DeleteContainer(handle);
+
+                    serverManager = ServerManager.OpenRemote("localhost"); // Refresh
                 };
+
+                after = () => Directory.Delete(path, true);
 
                 it["destroys the site in IIS with the given name"] =
                     () => { serverManager.Sites.should_not_contain(x => x.Name == handle); };
