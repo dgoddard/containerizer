@@ -47,7 +47,14 @@ namespace Containerizer.Services.Implementations
                     }
                     else
                     {
-                        writer.WriteAll(sourceDirectoryName, "*", SearchOption.AllDirectories);
+                        try
+                        {
+                            writer.WriteAll(sourceDirectoryName, "*", SearchOption.AllDirectories);
+                        }
+                        catch (System.ArgumentException e)
+                        {
+                            // DUNNO !!!
+                        }
                     }
                 }
             }
