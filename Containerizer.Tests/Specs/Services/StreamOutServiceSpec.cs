@@ -34,8 +34,8 @@ namespace Containerizer.Tests.Specs.Services
 
             before = () =>
             {
-                mockIContainerPathService.Setup(x => x.GetContainerRoot(It.IsAny<string>()))
-                    .Returns(() => @"C:\a\path");
+                mockIContainerPathService.Setup(x => x.GetSubdirectory(It.IsAny<string>(), "/file.txt"))
+                    .Returns(() => @"C:\a\path\file.txt");
                 mockITarStreamService.Setup(x => x.WriteTarToStream(It.IsAny<string>()))
                     .Returns((string path) =>
                     {
@@ -54,7 +54,7 @@ namespace Containerizer.Tests.Specs.Services
             it["passes the path combined with the id to tarstreamer"] =
                 () =>
                 {
-                    actualPath.should_be(@"C:\a\path/file.txt");
+                    actualPath.should_be(@"C:\a\path\file.txt");
                 };
         }
     }

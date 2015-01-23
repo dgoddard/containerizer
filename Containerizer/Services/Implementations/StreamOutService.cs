@@ -20,8 +20,8 @@ namespace Containerizer.Services.Implementations
 
         public Stream StreamOutFile(string id, string source)
         {
-            string rootDir = containerPathService.GetContainerRoot(id);
-            string path = rootDir + source;
+            string path = containerPathService.GetSubdirectory(id, source);
+
             Stream stream = tarStreamService.WriteTarToStream(path);
             return stream;
         }

@@ -69,6 +69,10 @@ namespace Containerizer.Controllers
             //ServerManager serverManager = ServerManager.OpenRemote("localhost");
             //Site site = serverManager.Sites[id];
             //site.Stop();
+          
+            return Task.FromResult(Request.CreateResponse(HttpStatusCode.OK));
+
+            // System.Threading.Thread.Sleep(10000);
 
             if (containerPathService.ContainerIds().Contains(id))
             {
