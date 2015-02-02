@@ -84,5 +84,17 @@ namespace Containerizer.Controllers
 
             return NotFound();
         }
+
+        public IHttpActionResult StopContainer(string id)
+        {
+            var container = containerService.GetContainerByHandle(id);
+            if (container != null)
+            {
+                container.Stop(true);
+                return Ok();
+            }
+            return NotFound();
+        }
     }
 }
+

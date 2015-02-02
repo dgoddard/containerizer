@@ -72,7 +72,7 @@ namespace Containerizer.Tests.Specs.Controllers
                     result.should_contain("MySecondContainer");
                 };
             };
-
+            #region Create
             describe["#Create"] = () =>
             {
 
@@ -149,7 +149,9 @@ namespace Containerizer.Tests.Specs.Controllers
                     };
                 };
             };
+            #endregion
 
+            #region Destroy
             describe["#Destroy"] = () =>
             {
                 IHttpActionResult result = null;
@@ -190,6 +192,53 @@ namespace Containerizer.Tests.Specs.Controllers
 
                 };
             };
+            #endregion
+
+            #region Stop
+            describe["#StopContainer"] = () =>
+            {
+
+                IHttpActionResult result = null;
+                Mock<IContainer> mockContainer = null;
+
+                act = () => result = containersController.StopContainer("MySecondContainer");
+
+                context["stopping running containers"] = () =>
+                {
+                    before = () =>
+                    {
+                        mockContainer = new Mock<IContainer>();
+                        mockContainerService.Setup(x => x.GetContainerByHandle("MySecondContainer")).Returns(mockContainer.Object);
+
+                    };
+
+                    it["successfully stops a container"] = () =>
+                    {
+                        result.should_cast_to<System.Web.Http.Results.OkResult>();
+                    };
+
+                    it["delegates stop command to container service"] = () =>
+                    {
+                        mockContainer.Verify(x => x.Stop(true));       
+                    };
+
+                };
+
+                context["stopping missing containers"] = () =>
+                {
+                    before = () =>
+                    {
+                        mockContainerService.Setup(x => x.GetContainerByHandle("MySecondContainer")).Returns(null as IContainer);
+                    };
+
+                    it["successfully stops a container"] = () =>
+                    {
+                        result.should_cast_to<System.Web.Http.Results.NotFoundResult>();
+                    };
+                };
+
+            };
+            #endregion
         }
     }
 }
