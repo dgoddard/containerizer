@@ -12,6 +12,8 @@ using Containerizer.Services.Interfaces;
 using Containerizer.Tests.Specs.Facades;
 using Moq;
 using NSpec;
+using IronFoundry.Container;
+using System.Collections.Generic;
 
 #endregion
 
@@ -25,21 +27,39 @@ namespace Containerizer.Tests.Specs.Controllers
         private Mock<IContainerPathService> mockPathService;
         private Mock<IProcessFacade> mockProcess;
         private ProcessStartInfo startInfo;
+        Mock<IContainerService> mockContainerService = null;
+        Mock<IContainer> mockContainer = null;
+        private int expectedHostPort = 6336;
 
         private void before_each()
         {
+
+            mockContainerService = new Mock<IContainerService>();
+
             containerId = new Guid().ToString();
             mockPathService = new Mock<IContainerPathService>();
             mockPathService.Setup(x => x.GetContainerRoot(containerId)).Returns("C:\\A\\Directory");
             mockProcess = new Mock<IProcessFacade>();
             startInfo = new ProcessStartInfo();
-            handler = new ContainerProcessHandler(containerId, mockPathService.Object, mockProcess.Object);
+
+            mockContainer = new Mock<IContainer>();
+            mockContainerService.Setup(x => x.GetContainerByHandle(containerId)).Returns(mockContainer.Object);
+            mockContainer.Setup(x => x.GetInfo()).Returns(
+                new ContainerInfo
+                {
+                    ReservedPorts = new List<int> { expectedHostPort },
+                });
+
+
 
             mockProcess.Setup(x => x.StartInfo).Returns(startInfo);
             mockProcess.Setup(x => x.Start());
 
+            handler = new ContainerProcessHandler(containerId, mockPathService.Object, mockContainerService.Object, mockProcess.Object);
+
+
             fakeStandardInput = new byte[4096];
-            var stream = new StreamWriter(new MemoryStream(fakeStandardInput)) {AutoFlush = true};
+            var stream = new StreamWriter(new MemoryStream(fakeStandardInput)) { AutoFlush = true };
             mockProcess.Setup(x => x.StandardInput).Returns(stream);
         }
 
@@ -55,7 +75,7 @@ namespace Containerizer.Tests.Specs.Controllers
 
         private void SendProcessExitEvent()
         {
-            mockProcess.Raise(mock => mock.Exited += null, (EventArgs) null);
+            mockProcess.Raise(mock => mock.Exited += null, (EventArgs)null);
         }
 
         private string WaitForWebSocketMessage(FakeWebSocket websocket)
@@ -86,7 +106,7 @@ namespace Containerizer.Tests.Specs.Controllers
             before = () =>
             {
                 handler.WebSocketContext = new FakeAspNetWebSocketContext();
-                websocket = (FakeWebSocket) handler.WebSocketContext.WebSocket;
+                websocket = (FakeWebSocket)handler.WebSocketContext.WebSocket;
             };
 
             act =
@@ -103,6 +123,28 @@ namespace Containerizer.Tests.Specs.Controllers
             {
                 startInfo.FileName.should_be("C:\\A\\Directory\\foo.exe");
                 startInfo.Arguments.should_be("\"some\" \"args\"");
+            };
+
+            it["sets PORT on the environment variable"] = () =>
+            {
+                startInfo.EnvironmentVariables["PORT"].should_be("6336");
+            };
+
+            xcontext["when a port has not been reserved"] = () =>
+            {
+                before = () =>
+                {
+                    mockContainer.Setup(x => x.GetInfo()).Returns(
+                        new ContainerInfo
+                        {
+                            ReservedPorts = new List<int>(),
+                        });
+                };
+
+                it["does not set PORT env variable"] = () =>
+                {
+                    startInfo.EnvironmentVariables["PORT"].should_be_null();
+                };
             };
 
             it["runs something"] = () =>
