@@ -80,21 +80,11 @@ namespace Containerizer.Tests.Specs.Controllers
 
         private string WaitForWebSocketMessage(FakeWebSocket websocket)
         {
-            var tokenSource = new CancellationTokenSource();
-            CancellationToken token = tokenSource.Token;
-            const int timeOut = 100; // 0.1s
-
-            Task task = Task.Factory.StartNew(() =>
+            Thread.Sleep(100);
+            if (websocket.LastSentBuffer.Array == null)
             {
-                while (websocket.LastSentBuffer.Array == null)
-                {
-                    Thread.Yield();
-                }
-            }, token);
-
-            if (!task.Wait(timeOut, token))
                 return "no message sent (test)";
-
+            }
             byte[] byteArray = websocket.LastSentBuffer.Array;
             return Encoding.Default.GetString(byteArray);
         }
@@ -130,7 +120,7 @@ namespace Containerizer.Tests.Specs.Controllers
                 startInfo.EnvironmentVariables["PORT"].should_be("6336");
             };
 
-            xcontext["when a port has not been reserved"] = () =>
+            context["when a port has not been reserved"] = () =>
             {
                 before = () =>
                 {
