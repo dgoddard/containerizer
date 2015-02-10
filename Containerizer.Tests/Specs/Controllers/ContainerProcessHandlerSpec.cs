@@ -1,6 +1,7 @@
 ﻿#region
 
 using System;
+using System.Collections;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -14,6 +15,7 @@ using Moq;
 using NSpec;
 using IronFoundry.Container;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 #endregion
 
@@ -92,17 +94,41 @@ namespace Containerizer.Tests.Specs.Controllers
         private void describe_onmessage()
         {
             FakeWebSocket websocket = null;
+            string instanceGuid = null;
+            string vcapApplication = null;
+
 
             before = () =>
             {
                 handler.WebSocketContext = new FakeAspNetWebSocketContext();
                 websocket = (FakeWebSocket)handler.WebSocketContext.WebSocket;
+                instanceGuid = new Guid().ToString();
+                vcapApplication = JsonConvert.SerializeObject(new Hashtable
+                {
+                    {"application_name", "dora"},
+                    {"strange_val", "a=b"},
+                });
+
             };
 
             act =
                 () =>
-                    handler.OnMessage(
-                        "{\"type\":\"run\", \"pspec\":{\"Path\":\"foo.exe\", \"Args\":[\"some\", \"args\"]}}");
+                    handler.OnMessage(JsonConvert.SerializeObject(
+                        new Hashtable
+                        {
+                            {"type", "run"},
+                            {
+                                "pspec", new Hashtable
+                                {
+                                    {"Path", "foo.exe"},
+                                    {"Args", new string[] {"some", "args"}},
+                                    {"Env", new string[] {"INSTANCE_INDEX=12", 
+                                                          "INSTANCE_GUID=" + instanceGuid,
+                                                          "VCAP_APPLICATION=" + vcapApplication} }
+                                }
+                            }
+                        }));
+
 
             it["sets working directory"] = () =>
             {
@@ -118,6 +144,21 @@ namespace Containerizer.Tests.Specs.Controllers
             it["sets PORT on the environment variable"] = () =>
             {
                 startInfo.EnvironmentVariables["PORT"].should_be("6336");
+            };
+
+            it["sets INSTANCE_INDEX on the environment variable"] = () =>
+            {
+                startInfo.EnvironmentVariables["INSTANCE_INDEX"].should_be("12");
+            };
+            
+            it["sets INSTANCE_GUID on the environment variable"] = () =>
+            {
+                startInfo.EnvironmentVariables["INSTANCE_GUID"].should_be(instanceGuid);
+            };
+
+            it["sets VCAP_APPLICATION on the environment variable (even though it has an '=' in the string value)"] = () =>
+            {
+                startInfo.EnvironmentVariables["VCAP_APPLICATION"].should_be(vcapApplication);
             };
 
             context["when a port has not been reserved"] = () =>

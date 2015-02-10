@@ -46,6 +46,12 @@ namespace Containerizer.Controllers
                 var reservedPorts = container.GetInfo().ReservedPorts;
                 if (reservedPorts.Count > 0)
                     process.StartInfo.EnvironmentVariables["PORT"] = reservedPorts[0].ToString();
+
+                foreach (String nvPair in processSpec.Env)
+                {
+                    string[] vals = nvPair.Split("=".ToCharArray(), 2);
+                    process.StartInfo.EnvironmentVariables[vals[0]] = vals[1];
+                }
                 
                 try
                 {

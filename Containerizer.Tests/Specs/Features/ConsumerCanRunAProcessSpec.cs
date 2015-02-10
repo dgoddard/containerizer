@@ -53,7 +53,7 @@ namespace Containerizer.Tests.Specs.Features
                     containerPath = Helpers.GetContainerPath(handle);
                     File.WriteAllBytes(containerPath + "/myfile.bat",
                         new UTF8Encoding(true).GetBytes(
-                            "@echo off\r\n@echo Hi Fred\r\n@echo Jane is good\r\n@echo Jill is better\r\nset PORT\r\n"));
+                            "@echo off\r\n@echo Hi Fred\r\n@echo Jane is good\r\n@echo Jill is better\r\nset PORT\r\nset INSTANCE_INDEX\r\nset INSTANCE_GUID\r\n"));
 
                     var response = httpClient.PostAsJsonAsync("/api/containers/" + handle + "/net/in", new { hostPort = 0 }).GetAwaiter().GetResult();
                     var json = response.Content.ReadAsJson() as JObject;
@@ -67,13 +67,15 @@ namespace Containerizer.Tests.Specs.Features
                 describe["when I send a start request"] = () =>
                 {
                     List<String> messages = null;
+                    string instance_guid = null;
 
                     before = () =>
                     {
+                        instance_guid = new Guid().ToString();
                         var encoder = new UTF8Encoding();
                         byte[] buffer =
                             encoder.GetBytes(
-                                "{\"type\":\"run\", \"pspec\":{\"Path\":\"myfile.bat\", Args:[\"/all\"]}}");
+                                "{\"type\":\"run\", \"pspec\":{\"Path\":\"myfile.bat\", Args:[\"/all\"], \"Env\":[\"INSTANCE_INDEX=12\",\"INSTANCE_GUID="+instance_guid+"\"]}}");
                         client.SendAsync(new ArraySegment<byte>(buffer), WebSocketMessageType.Text, true,
                             CancellationToken.None);
 
@@ -92,7 +94,7 @@ namespace Containerizer.Tests.Specs.Features
                                 string message = Encoding.Default.GetString(receiveBuffer);
                                 messages.Add(message.Substring(0, result.Count));
                             }
-                        } while (messages.Count < 5);
+                        } while (messages.Count < 7);
                     };
 
                     it["should run a process, return stdout and close the socket"] = () =>
@@ -105,8 +107,16 @@ namespace Containerizer.Tests.Specs.Features
                     {
                         messages.should_contain("{\"type\":\"stdout\",\"data\":\"PORT=" + hostPort + "\\r\\n\"}");
                     };
+
+                    it["should set INSTANCE_GUID env variable"] = () =>
+                    {
+                        messages.should_contain("{\"type\":\"stdout\",\"data\":\"INSTANCE_INDEX=12\\r\\n\"}");
+                        messages.should_contain("{\"type\":\"stdout\",\"data\":\"INSTANCE_GUID=" + instance_guid + "\\r\\n\"}");
+                    };
                 };
             };
         }
     }
 }
+
+
