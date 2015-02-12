@@ -103,10 +103,7 @@ namespace Containerizer.Tests.Specs.Services
 
             context["requesting a single file"] = () =>
             {
-                before = () =>
-                {
-                    tarStream = tarStreamService.WriteTarToStream(Path.Combine(tmpDir, "a_file.txt"));
-                };
+                before = () => { tarStream = tarStreamService.WriteTarToStream(Path.Combine(tmpDir, "a_file.txt")); };
 
                 it["returns a steam with a single requested file"] = () =>
                 {
@@ -122,15 +119,9 @@ namespace Containerizer.Tests.Specs.Services
 
             context["requesting a directory"] = () =>
             {
-                before = () =>
-                {
-                    tarStream = tarStreamService.WriteTarToStream(tmpDir);
-                };
+                before = () => { tarStream = tarStreamService.WriteTarToStream(tmpDir); };
 
-                it["creates the tgz stream"] = () =>
-                {
-                    ReaderFactory.Open(tarStream).should_not_be_null();
-                };
+                it["creates the tgz stream"] = () => { ReaderFactory.Open(tarStream).should_not_be_null(); };
 
                 it["returns a stream with the files inside"] = () =>
                 {

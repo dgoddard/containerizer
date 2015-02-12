@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.IO;
+using Containerizer.Models;
 using Containerizer.Services.Interfaces;
 using IronFoundry.Container;
 
@@ -19,12 +20,11 @@ namespace Containerizer.Services.Implementations
             this.tarStreamService = tarStreamService;
         }
 
-        public Stream StreamOutFile(string id, string source)
+        public Stream StreamOutFile(string id, LinuxAbsolutePath path)
         {
             IContainer container = containerService.GetContainerByHandle(id);
-
-            string path = container.Directory.MapUserPath(source);
-            Stream stream = tarStreamService.WriteTarToStream(path);
+            string windowsPath = container.Directory.MapUserPath(path.Value);
+            Stream stream = tarStreamService.WriteTarToStream(windowsPath);
             return stream;
         }
     }

@@ -42,11 +42,11 @@ namespace Containerizer.Controllers
                 process.StartInfo.Arguments = processSpec.Arguments();
                 process.OutputDataReceived += OutputDataHandler;
                 process.ErrorDataReceived += OutputErrorDataHandler;
-                
+
                 var reservedPorts = container.GetInfo().ReservedPorts;
                 if (reservedPorts.Count > 0)
                     process.StartInfo.EnvironmentVariables["PORT"] = reservedPorts[0].ToString();
-                
+
                 try
                 {
                     process.Start();

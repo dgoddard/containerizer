@@ -31,7 +31,9 @@ namespace Containerizer.Controllers
         [HttpGet]
         public Task<IHttpActionResult> Show(string handle, string propertyKey)
         {
-            return Task.FromResult((IHttpActionResult)Json(new GetPropertyResponse {Value = propertyService.Get(handle, propertyKey)}));
+            return
+                Task.FromResult(
+                    (IHttpActionResult) Json(new GetPropertyResponse {Value = propertyService.Get(handle, propertyKey)}));
         }
 
         [Route("api/containers/{id}/properties/{propertyKey}")]
@@ -48,7 +50,7 @@ namespace Containerizer.Controllers
         public Task<IHttpActionResult> Destroy(string handle, string key)
         {
             propertyService.Destroy(handle, key);
-            return Task.FromResult((IHttpActionResult)Ok());
+            return Task.FromResult((IHttpActionResult) Ok());
         }
     }
 }

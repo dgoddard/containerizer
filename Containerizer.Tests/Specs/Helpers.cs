@@ -38,7 +38,8 @@ namespace Containerizer.Tests.Specs
         public static string CreateContainer(HttpClient client)
         {
             var handle = Guid.NewGuid().ToString();
-            var postTask = client.PostAsync("/api/Containers", new StringContent("{Handle: \"" + handle + "\"}", Encoding.UTF8, "application/json"));
+            var postTask = client.PostAsync("/api/Containers",
+                new StringContent("{Handle: \"" + handle + "\"}", Encoding.UTF8, "application/json"));
             postTask.Wait();
             var postResult = postTask.Result;
             var readTask = postResult.Content.ReadAsStringAsync();
@@ -50,7 +51,8 @@ namespace Containerizer.Tests.Specs
 
         public static string GetContainerPath(string handle)
         {
-            return Path.Combine(ContainerServiceFactory.GetContainerRoot(), new ContainerHandleHelper().GenerateId(handle), "user");
+            return Path.Combine(ContainerServiceFactory.GetContainerRoot(),
+                new ContainerHandleHelper().GenerateId(handle), "user");
         }
 
         public static void SetupSiteInIIS(string applicationFolderName, string siteName, string applicationPoolName,

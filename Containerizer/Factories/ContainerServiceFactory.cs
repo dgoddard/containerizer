@@ -14,6 +14,7 @@ namespace Containerizer.Factories
         {
             return new ContainerService(GetContainerRoot(), "Users");
         }
+
         public static string GetContainerRoot()
         {
             string rootDir = Directory.GetDirectoryRoot(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));

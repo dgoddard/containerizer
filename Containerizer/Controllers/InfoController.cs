@@ -38,7 +38,7 @@ namespace Containerizer.Controllers
             var portMappings = new List<PortMappingApiModel>();
             foreach (int reservedPort in rawInfo.ReservedPorts)
             {
-                portMappings.Add(new PortMappingApiModel { HostPort = reservedPort, ContainerPort = 8080 });
+                portMappings.Add(new PortMappingApiModel {HostPort = reservedPort, ContainerPort = 8080});
             }
             var apiResponse = new ContainerInfoApiModel
             {

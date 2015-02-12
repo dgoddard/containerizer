@@ -35,7 +35,7 @@ namespace Containerizer.Tests.Specs.Features
             {
                 before = () =>
                 {
-                    client = new HttpClient { BaseAddress = new Uri("http://localhost:" + port) };
+                    client = new HttpClient {BaseAddress = new Uri("http://localhost:" + port)};
 
                     handle = Helpers.CreateContainer(client);
                 };

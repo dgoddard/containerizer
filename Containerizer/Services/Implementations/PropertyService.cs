@@ -93,6 +93,8 @@ namespace Containerizer.Services.Implementations
             return Path.Combine(containerPath, "properties.json");
         }
 
-        class KeyNotFoundException : System.Exception { }
+        private class KeyNotFoundException : System.Exception
+        {
+        }
     }
 }

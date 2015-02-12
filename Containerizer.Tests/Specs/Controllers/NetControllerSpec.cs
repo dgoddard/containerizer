@@ -45,47 +45,37 @@ namespace Containerizer.Tests.Specs.Controllers
                     mockContainerService.Setup(x => x.GetContainerByHandle(containerId)).Returns(mockContainer.Object);
                 };
 
-                act = () =>
-                {
-                    result = netController.Create(containerId, new NetInRequest { HostPort = requestedHostPort });
-                };
+                act =
+                    () =>
+                    {
+                        result = netController.Create(containerId, new NetInRequest {HostPort = requestedHostPort});
+                    };
 
-                it["reserves the port in the container"] = () =>
-                {
-                    mockContainer.Verify(x => x.ReservePort(requestedHostPort));
-                };
+                it["reserves the port in the container"] =
+                    () => { mockContainer.Verify(x => x.ReservePort(requestedHostPort)); };
 
                 context["when the container does not exist"] = () =>
                 {
-                    before = () =>
-                    {
-                        mockContainerService.Setup(x => x.GetContainerByHandle(It.IsAny<string>())).Returns(null as IContainer);
-                    };
+                    before =
+                        () =>
+                        {
+                            mockContainerService.Setup(x => x.GetContainerByHandle(It.IsAny<string>()))
+                                .Returns(null as IContainer);
+                        };
 
-                    it["Returns not found"] = () =>
-                    {
-                        result.should_cast_to<NotFoundResult>();
-                    };
+                    it["Returns not found"] = () => { result.should_cast_to<NotFoundResult>(); };
                 };
 
                 context["reserving the port in the container succeeds and returns a port"] = () =>
                 {
-                    before = () =>
-                    {
-                        mockContainer.Setup(x => x.ReservePort(requestedHostPort)).Returns(8765);
-                    };
+                    before = () => { mockContainer.Setup(x => x.ReservePort(requestedHostPort)).Returns(8765); };
 
-                    it["calls reservePort on the container"] = () =>
-                        {
-                            mockContainer.Verify(x => x.ReservePort(requestedHostPort));
-                        };
+                    it["calls reservePort on the container"] =
+                        () => { mockContainer.Verify(x => x.ReservePort(requestedHostPort)); };
 
                     context["container reservePort succeeds and returns a port"] = () =>
                     {
-                        before = () =>
-                        {
-                            mockContainer.Setup(x => x.ReservePort(requestedHostPort)).Returns(8765);
-                        };
+                        before = () => { mockContainer.Setup(x => x.ReservePort(requestedHostPort)).Returns(8765); };
 
                         it["returns the port that the net in service returns"] = () =>
                         {
@@ -96,10 +86,11 @@ namespace Containerizer.Tests.Specs.Controllers
 
                     context["reserving the port in the container fails and throws an exception"] = () =>
                     {
-                        before = () =>
-                        {
-                            mockContainer.Setup(x => x.ReservePort(requestedHostPort)).Throws(new Exception("BOOM"));
-                        };
+                        before =
+                            () =>
+                            {
+                                mockContainer.Setup(x => x.ReservePort(requestedHostPort)).Throws(new Exception("BOOM"));
+                            };
 
                         it["returns an error"] = () =>
                         {

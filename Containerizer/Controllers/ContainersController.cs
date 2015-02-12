@@ -58,7 +58,7 @@ namespace Containerizer.Controllers
 
             var containerPath = container.Directory.MapUserPath("");
             propertyService.BulkSetWithContainerPath(containerPath, spec.Properties);
-              
+
             return new CreateResponse
             {
                 Id = container.Handle

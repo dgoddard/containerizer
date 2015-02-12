@@ -12,7 +12,7 @@ using NSpec;
 
 namespace Containerizer.Tests.Specs.Services
 {
-    class PropertyServiceSpec : nspec
+    internal class PropertyServiceSpec : nspec
     {
         private void describe_()
         {
@@ -32,17 +32,15 @@ namespace Containerizer.Tests.Specs.Services
                 containerDirectory = Path.Combine(Path.GetTempPath(), handle);
                 Directory.CreateDirectory(containerDirectory);
 
-                mockContainerService.Setup(x => x.GetContainerByHandle(It.IsAny<string>())).Returns(mockContainer.Object);
+                mockContainerService.Setup(x => x.GetContainerByHandle(It.IsAny<string>()))
+                    .Returns(mockContainer.Object);
                 mockContainer.Setup(x => x.Directory).Returns(mockIContainerDirectory.Object);
                 mockIContainerDirectory.Setup(x => x.MapUserPath("")).Returns(containerDirectory);
 
                 propService = new PropertyService(mockContainerService.Object);
             };
 
-            after = () =>
-            {
-                Directory.Delete(containerDirectory, true);
-            };
+            after = () => { Directory.Delete(containerDirectory, true); };
 
             describe["#BulkSet"] = () =>
             {
@@ -50,7 +48,7 @@ namespace Containerizer.Tests.Specs.Services
                 {
                     propService.BulkSet(handle, new Dictionary<string, string>
                     {
-                        { "mysecret", "dontread" },
+                        {"mysecret", "dontread"},
                     });
 
                     File.ReadAllText(Path.Combine(containerDirectory, "properties.json")).should_be(
@@ -66,7 +64,7 @@ namespace Containerizer.Tests.Specs.Services
 
                         File.ReadAllText(Path.Combine(containerDirectory, "properties.json")).should_be(
                             "{}"
-                        );
+                            );
                     };
                 };
             };
@@ -77,7 +75,7 @@ namespace Containerizer.Tests.Specs.Services
                 {
                     propService.BulkSetWithContainerPath(containerDirectory, new Dictionary<string, string>
                     {
-                        { "mysecret", "dontread" },
+                        {"mysecret", "dontread"},
                     });
 
                     File.ReadAllText(Path.Combine(containerDirectory, "properties.json")).should_be(
@@ -108,58 +106,80 @@ namespace Containerizer.Tests.Specs.Services
 
             describe["#Get"] = () =>
             {
-                context["file does not exist"] = () =>
-                {
-                    it["raises an error"] = () => expect<FileNotFoundException>(() => propService.Get(handle, "key"))();
-                };
+                context["file does not exist"] =
+                    () =>
+                    {
+                        it["raises an error"] =
+                            () => expect<FileNotFoundException>(() => propService.Get(handle, "key"))();
+                    };
 
                 context["file exists but key does not"] = () =>
                 {
-                    before = () => File.WriteAllText(Path.Combine(containerDirectory, "properties.json"), "{\"mysecret\":\"dontread\"}");
+                    before =
+                        () =>
+                            File.WriteAllText(Path.Combine(containerDirectory, "properties.json"),
+                                "{\"mysecret\":\"dontread\"}");
                     it["raises an error"] = () => expect<KeyNotFoundException>(() => propService.Get(handle, "key"))();
                 };
 
                 context["file and key exist"] = () =>
                 {
-                    before = () => File.WriteAllText(Path.Combine(containerDirectory, "properties.json"), "{\"mysecret\":\"dontread\"}");
+                    before =
+                        () =>
+                            File.WriteAllText(Path.Combine(containerDirectory, "properties.json"),
+                                "{\"mysecret\":\"dontread\"}");
                     it["returns the associated value"] = () => propService.Get(handle, "mysecret").should_be("dontread");
                 };
             };
 
             describe["#Destroy"] = () =>
             {
-                context["file does not exist"] = () =>
-                {
-                    it["raises an error"] = () => expect<FileNotFoundException>(() => propService.Destroy(handle, "key"))();
-                };
+                context["file does not exist"] =
+                    () =>
+                    {
+                        it["raises an error"] =
+                            () => expect<FileNotFoundException>(() => propService.Destroy(handle, "key"))();
+                    };
 
                 context["file exists but key does not"] = () =>
                 {
-                    before = () => File.WriteAllText(Path.Combine(containerDirectory, "properties.json"), "{\"mysecret\":\"dontread\"}");
-                    it["raises an error"] = () => expect<KeyNotFoundException>(() => propService.Destroy(handle, "key"))();
+                    before =
+                        () =>
+                            File.WriteAllText(Path.Combine(containerDirectory, "properties.json"),
+                                "{\"mysecret\":\"dontread\"}");
+                    it["raises an error"] =
+                        () => expect<KeyNotFoundException>(() => propService.Destroy(handle, "key"))();
                 };
 
                 context["file and key exist"] = () =>
                 {
-                    before = () => File.WriteAllText(Path.Combine(containerDirectory, "properties.json"), "{\"mysecret\":\"dontread\",\"another\":\"text\"}");
+                    before =
+                        () =>
+                            File.WriteAllText(Path.Combine(containerDirectory, "properties.json"),
+                                "{\"mysecret\":\"dontread\",\"another\":\"text\"}");
                     it["removes the key-value pair"] = () =>
                     {
                         propService.Destroy(handle, "mysecret");
-                        File.ReadAllText(Path.Combine(containerDirectory, "properties.json")).should_be("{\"another\":\"text\"}");
+                        File.ReadAllText(Path.Combine(containerDirectory, "properties.json"))
+                            .should_be("{\"another\":\"text\"}");
                     };
                 };
             };
 
             describe["#GetAll"] = () =>
             {
-                context["file does not exist"] = () =>
-                {
-                    it["raises an error"] = () => expect<FileNotFoundException>(() => propService.GetAll(handle))();
-                };
+                context["file does not exist"] =
+                    () =>
+                    {
+                        it["raises an error"] = () => expect<FileNotFoundException>(() => propService.GetAll(handle))();
+                    };
 
                 context["file does exist"] = () =>
                 {
-                    before = () => File.WriteAllText(Path.Combine(containerDirectory, "properties.json"), "{\"mysecret\":\"dontread\",\"another\":\"text\"}");
+                    before =
+                        () =>
+                            File.WriteAllText(Path.Combine(containerDirectory, "properties.json"),
+                                "{\"mysecret\":\"dontread\",\"another\":\"text\"}");
                     it["returns the properties"] = () =>
                     {
                         propService.GetAll(handle).should_be(new Dictionary<string, string>
@@ -170,7 +190,6 @@ namespace Containerizer.Tests.Specs.Services
                     };
                 };
             };
-
         }
     }
 }

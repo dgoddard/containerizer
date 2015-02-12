@@ -26,14 +26,13 @@ namespace Containerizer.Tests.Specs.Controllers
         private ContainerProcessHandler handler;
         private Mock<IProcessFacade> mockProcess;
         private ProcessStartInfo startInfo;
-        Mock<IContainerService> mockContainerService = null;
-        Mock<IContainer> mockContainer = null;
+        private Mock<IContainerService> mockContainerService = null;
+        private Mock<IContainer> mockContainer = null;
         private int expectedHostPort = 6336;
         private Mock<IContainerDirectory> mockContainerDirectory;
 
         private void before_each()
         {
-
             mockContainerService = new Mock<IContainerService>();
             mockContainerDirectory = new Mock<IContainerDirectory>();
 
@@ -46,7 +45,7 @@ namespace Containerizer.Tests.Specs.Controllers
             mockContainer.Setup(x => x.GetInfo()).Returns(
                 new ContainerInfo
                 {
-                    ReservedPorts = new List<int> { expectedHostPort },
+                    ReservedPorts = new List<int> {expectedHostPort},
                 });
 
 
@@ -60,7 +59,7 @@ namespace Containerizer.Tests.Specs.Controllers
 
 
             fakeStandardInput = new byte[4096];
-            var stream = new StreamWriter(new MemoryStream(fakeStandardInput)) { AutoFlush = true };
+            var stream = new StreamWriter(new MemoryStream(fakeStandardInput)) {AutoFlush = true};
             mockProcess.Setup(x => x.StandardInput).Returns(stream);
         }
 
@@ -76,7 +75,7 @@ namespace Containerizer.Tests.Specs.Controllers
 
         private void SendProcessExitEvent()
         {
-            mockProcess.Raise(mock => mock.Exited += null, (EventArgs)null);
+            mockProcess.Raise(mock => mock.Exited += null, (EventArgs) null);
         }
 
         private string WaitForWebSocketMessage(FakeWebSocket websocket)
@@ -97,7 +96,7 @@ namespace Containerizer.Tests.Specs.Controllers
             before = () =>
             {
                 handler.WebSocketContext = new FakeAspNetWebSocketContext();
-                websocket = (FakeWebSocket)handler.WebSocketContext.WebSocket;
+                websocket = (FakeWebSocket) handler.WebSocketContext.WebSocket;
             };
 
             act =
@@ -105,10 +104,7 @@ namespace Containerizer.Tests.Specs.Controllers
                     handler.OnMessage(
                         "{\"type\":\"run\", \"pspec\":{\"Path\":\"foo.exe\", \"Args\":[\"some\", \"args\"]}}");
 
-            it["sets working directory"] = () =>
-            {
-                startInfo.WorkingDirectory.should_be("C:\\A\\Directory\\user");
-            };
+            it["sets working directory"] = () => { startInfo.WorkingDirectory.should_be("C:\\A\\Directory\\user"); };
 
             it["sets start info correctly"] = () =>
             {
@@ -116,10 +112,8 @@ namespace Containerizer.Tests.Specs.Controllers
                 startInfo.Arguments.should_be("\"some\" \"args\"");
             };
 
-            it["sets PORT on the environment variable"] = () =>
-            {
-                startInfo.EnvironmentVariables["PORT"].should_be("6336");
-            };
+            it["sets PORT on the environment variable"] =
+                () => { startInfo.EnvironmentVariables["PORT"].should_be("6336"); };
 
             context["when a port has not been reserved"] = () =>
             {
@@ -132,16 +126,11 @@ namespace Containerizer.Tests.Specs.Controllers
                         });
                 };
 
-                it["does not set PORT env variable"] = () =>
-                {
-                    startInfo.EnvironmentVariables["PORT"].should_be_null();
-                };
+                it["does not set PORT env variable"] =
+                    () => { startInfo.EnvironmentVariables["PORT"].should_be_null(); };
             };
 
-            it["runs something"] = () =>
-            {
-                mockProcess.Verify(x => x.Start());
-            };
+            it["runs something"] = () => { mockProcess.Verify(x => x.Start()); };
 
 
             context["when process.start raises an error"] = () =>

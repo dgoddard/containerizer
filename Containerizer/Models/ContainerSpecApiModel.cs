@@ -7,15 +7,7 @@ namespace Containerizer.Models
 {
     public class ContainerSpecApiModel
     {
-        public string Handle
-        {
-            get;
-            set;
-        }
-        public Dictionary<string, string> Properties
-        {
-            get;
-            set;
-        }
+        public string Handle { get; set; }
+        public Dictionary<string, string> Properties { get; set; }
     }
 }

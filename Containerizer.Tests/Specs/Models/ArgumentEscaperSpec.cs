@@ -3,7 +3,7 @@ using NSpec;
 
 namespace Containerizer.Tests.Specs.Models
 {
-    class ArgumentEscaperSpec : nspec
+    internal class ArgumentEscaperSpec : nspec
     {
         public void describe_()
         {
@@ -25,7 +25,7 @@ namespace Containerizer.Tests.Specs.Models
 
                 it["Escapes embedded backslashes"] = () =>
                 {
-                    var args = new[] { "{\"start_command\":\"start\\yo\"}" };
+                    var args = new[] {"{\"start_command\":\"start\\yo\"}"};
                     var result = ArgumentEscaper.Escape(args);
                     result.should_be("\"{\\\"start_command\\\":\\\"start\\\\yo\\\"}\"");
                 };

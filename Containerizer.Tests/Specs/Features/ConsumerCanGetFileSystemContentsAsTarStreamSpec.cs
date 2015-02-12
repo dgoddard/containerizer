@@ -42,7 +42,9 @@ namespace Containerizer.Tests.Specs.Features
                 it["streams the file as a tarball"] = () =>
                 {
                     HttpResponseMessage getTask =
-                        client.GetAsync("/api/containers/" + handle + "/files?source=/file.txt").GetAwaiter().GetResult();
+                        client.GetAsync("/api/containers/" + handle + "/files?source=/file.txt")
+                            .GetAwaiter()
+                            .GetResult();
                     getTask.IsSuccessStatusCode.should_be_true();
                     Stream tarStream = getTask.Content.ReadAsStreamAsync().GetAwaiter().GetResult();
                     using (IReader tar = ReaderFactory.Open(tarStream))

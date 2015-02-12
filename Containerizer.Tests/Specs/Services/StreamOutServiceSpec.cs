@@ -2,6 +2,7 @@
 
 using System;
 using System.IO;
+using Containerizer.Models;
 using Containerizer.Services.Implementations;
 using Containerizer.Services.Interfaces;
 using IronFoundry.Container;
@@ -28,7 +29,7 @@ namespace Containerizer.Tests.Specs.Services
             mockIContainerService = new Mock<IContainerService>();
             mockIContainer = new Mock<IContainer>();
             mockIContainerDirectory = new Mock<IContainerDirectory>();
-            
+
             mockITarStreamService = new Mock<ITarStreamService>();
             streamOutService = new StreamOutService(mockIContainerService.Object, mockITarStreamService.Object);
             id = Guid.NewGuid().ToString();
@@ -40,7 +41,8 @@ namespace Containerizer.Tests.Specs.Services
 
             before = () =>
             {
-                mockIContainerService.Setup(x => x.GetContainerByHandle(It.IsAny<string>())).Returns(mockIContainer.Object);
+                mockIContainerService.Setup(x => x.GetContainerByHandle(It.IsAny<string>()))
+                    .Returns(mockIContainer.Object);
                 mockIContainer.Setup(x => x.Directory).Returns(mockIContainerDirectory.Object);
                 mockIContainerDirectory.Setup(x => x.MapUserPath("/file.txt")).Returns(@"C:\a\path\file.txt");
 
@@ -51,19 +53,13 @@ namespace Containerizer.Tests.Specs.Services
                         actualPath = path;
                         return expectedStream;
                     });
-                stream = streamOutService.StreamOutFile(id, "/file.txt");
+                stream = streamOutService.StreamOutFile(id, new LinuxAbsolutePath("/file.txt"));
             };
 
-            it["returns a stream from the tarstreamer"] = () =>
-            {
-                stream.should_be_same(expectedStream);
-            };
+            it["returns a stream from the tarstreamer"] = () => { stream.should_be_same(expectedStream); };
 
             it["passes the path combined with the id to tarstreamer"] =
-                () =>
-                {
-                    actualPath.should_be(@"C:\a\path\file.txt");
-                };
+                () => { actualPath.should_be(@"C:\a\path\file.txt"); };
         }
     }
 }

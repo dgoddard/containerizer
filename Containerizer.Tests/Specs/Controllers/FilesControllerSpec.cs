@@ -5,6 +5,7 @@ using System.IO;
 using System.Net.Http;
 using System.Web.Http;
 using Containerizer.Controllers;
+using Containerizer.Models;
 using Containerizer.Services.Interfaces;
 using Moq;
 using NSpec;
@@ -39,7 +40,7 @@ namespace Containerizer.Tests.Specs.Controllers
                     HttpResponseMessage result = null;
                     before = () =>
                     {
-                        mockStreamOutService.Setup(x => x.StreamOutFile(It.IsAny<string>(), It.IsAny<string>()))
+                        mockStreamOutService.Setup(x => x.StreamOutFile(It.IsAny<string>(), It.IsAny<LinuxAbsolutePath>()))
                             .Returns(() =>
                             {
                                 var stream = new MemoryStream();
@@ -55,10 +56,7 @@ namespace Containerizer.Tests.Specs.Controllers
                     };
 
 
-                    it["returns a successful status code"] = () =>
-                    {
-                        result.VerifiesSuccessfulStatusCode();
-                    };
+                    it["returns a successful status code"] = () => { result.VerifiesSuccessfulStatusCode(); };
                 };
             };
 
@@ -67,7 +65,7 @@ namespace Containerizer.Tests.Specs.Controllers
                 context["when it receives a new file"] = () =>
                 {
                     string id = null;
-                    const string fileName = "file.txt";
+                    const string fileName = "/file.txt";
                     IHttpActionResult result = null;
                     string content = null;
 
@@ -89,14 +87,11 @@ namespace Containerizer.Tests.Specs.Controllers
                         mockStreamInService.Verify(x => x.StreamInFile(
                             It.Is((Stream y) => new StreamReader(y).ReadToEnd() == content),
                             id,
-                            fileName));
+                            It.Is((LinuxAbsolutePath y) => y.Value == fileName)));
                     };
 
 
-                    it["returns a successful status code"] = () =>
-                    {
-                        result.VerifiesSuccessfulStatusCode();
-                    };
+                    it["returns a successful status code"] = () => { result.VerifiesSuccessfulStatusCode(); };
                 };
             };
         }

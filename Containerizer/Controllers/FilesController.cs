@@ -4,6 +4,7 @@ using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
+using Containerizer.Models;
 using Containerizer.Services.Interfaces;
 
 #endregion
@@ -26,7 +27,8 @@ namespace Containerizer.Controllers
         [HttpGet]
         public Task<HttpResponseMessage> Show(string id, string source)
         {
-            Stream outStream = streamOutService.StreamOutFile(id, source);
+            var path = new LinuxAbsolutePath(source);
+            Stream outStream = streamOutService.StreamOutFile(id, path);
             HttpResponseMessage response = Request.CreateResponse();
             response.Content = new StreamContent(outStream);
             return Task.FromResult(response);
@@ -36,8 +38,9 @@ namespace Containerizer.Controllers
         [HttpPut]
         public async Task<IHttpActionResult> Update(string id, string destination)
         {
+            var path = new LinuxAbsolutePath(destination);
             Stream stream = await Request.Content.ReadAsStreamAsync();
-            streamInService.StreamInFile(stream, id, destination);
+            streamInService.StreamInFile(stream, id, path);
             return Ok();
         }
     }

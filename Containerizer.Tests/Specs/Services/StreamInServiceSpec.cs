@@ -2,6 +2,7 @@
 
 using System;
 using System.IO;
+using Containerizer.Models;
 using Containerizer.Services.Implementations;
 using Containerizer.Services.Interfaces;
 using IronFoundry.Container;
@@ -40,10 +41,10 @@ namespace Containerizer.Tests.Specs.Services
             {
                 mockIContainerService.Setup(x => x.GetContainerByHandle(It.IsAny<string>())).Returns(mockIContainer.Object);
                 mockIContainer.Setup(x => x.Directory).Returns(mockIContainerDirectory.Object);
-                mockIContainerDirectory.Setup(x => x.MapUserPath("file.txt")).Returns(@"C:\a\path\file.txt");
+                mockIContainerDirectory.Setup(x => x.MapUserPath("/file.txt")).Returns(@"C:\a\path\file.txt");
 
                 stream = new MemoryStream();
-                streamInService.StreamInFile(stream, id, "file.txt");
+                streamInService.StreamInFile(stream, id, new LinuxAbsolutePath("/file.txt"));
             };
 
             it["passes through its stream and combined path to tarstreamer"] = () =>
@@ -55,7 +56,7 @@ namespace Containerizer.Tests.Specs.Services
 
                 Func<String, bool> verifyPath = x =>
                 {
-                    return x.Equals(Path.Combine(@"C:\a\path", "file.txt"));
+                    return x.Equals(Path.Combine(@"C:\a\path", "/user/file.txt"));
                 };
 
                 mockITarStreamService.Verify(x => x.WriteTarStreamToPath(

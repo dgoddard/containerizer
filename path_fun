@@ -1,0 +1,18 @@
+"user":
+linux path fragments
+linux absolute paths
+linux relative paths
+windows absolute paths
+windows path fragments
+windows relative paths
+
+
+"nonuser":
+linux path fragments
+linux absolute paths
+linux relative paths
+windows absolute paths
+windows path fragments
+windows relative paths
+
+think about case sensitivitiy

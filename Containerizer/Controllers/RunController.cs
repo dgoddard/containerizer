@@ -17,7 +17,7 @@ namespace Containerizer.Controllers
 {
     public class RunController : ApiController
     {
-        IContainerService containerService;
+        private IContainerService containerService;
 
         public RunController(IContainerService containerService)
         {
@@ -28,7 +28,8 @@ namespace Containerizer.Controllers
         [HttpGet]
         public Task<HttpResponseMessage> Index(string id)
         {
-            HttpContext.Current.AcceptWebSocketRequest(new ContainerProcessHandler(id, containerService, new ProcessFacade()));
+            HttpContext.Current.AcceptWebSocketRequest(new ContainerProcessHandler(id, containerService,
+                new ProcessFacade()));
             HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.SwitchingProtocols);
             return Task.FromResult(response);
         }

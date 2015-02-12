@@ -37,7 +37,7 @@ namespace Containerizer.Tests.Specs.Controllers
                 key = "some:key";
                 value = "value";
             };
-                 
+
             describe[Controller.Show] = () =>
             {
                 IHttpActionResult result = null;
@@ -47,18 +47,12 @@ namespace Containerizer.Tests.Specs.Controllers
                 {
                     propertyValue = "a lion, a hippo, the number 25";
                     mockPropertyService.Setup(x => x.Get(containerHandle, key))
-                        .Returns(() =>
-                        {
-                            return propertyValue;
-                        });
+                        .Returns(() => { return propertyValue; });
 
                     result = propertiesController.Show(containerHandle, key).GetAwaiter().GetResult();
                 };
 
-                it["returns a successful status code"] = () =>
-                {
-                    result.VerifiesSuccessfulStatusCode();
-                };
+                it["returns a successful status code"] = () => { result.VerifiesSuccessfulStatusCode(); };
 
                 it["returns the correct property value"] = () =>
                 {
@@ -81,34 +75,21 @@ namespace Containerizer.Tests.Specs.Controllers
                     result = propertiesController.Update(containerHandle, key).Result;
                 };
 
-                it["calls the propertyService set method"] = () =>
-                {
-                    mockPropertyService.Verify(x => x.Set(containerHandle, key, value));
-                };
+                it["calls the propertyService set method"] =
+                    () => { mockPropertyService.Verify(x => x.Set(containerHandle, key, value)); };
 
-                it["returns a successful status code"] = () =>
-                {
-                    result.VerifiesSuccessfulStatusCode();
-                };
+                it["returns a successful status code"] = () => { result.VerifiesSuccessfulStatusCode(); };
             };
 
             describe[Controller.Destroy] = () =>
             {
                 IHttpActionResult result = null;
-                before = () =>
-                {
-                    result = propertiesController.Destroy(containerHandle, key).Result;
-                };
+                before = () => { result = propertiesController.Destroy(containerHandle, key).Result; };
 
-                it["calls the propertyService destroy method"] = () =>
-                {
-                    mockPropertyService.Verify(x => x.Destroy(containerHandle, key));
-                };
+                it["calls the propertyService destroy method"] =
+                    () => { mockPropertyService.Verify(x => x.Destroy(containerHandle, key)); };
 
-                it["returns a successful status code"] = () =>
-                {
-                    result.VerifiesSuccessfulStatusCode();
-                };
+                it["returns a successful status code"] = () => { result.VerifiesSuccessfulStatusCode(); };
             };
         }
     }

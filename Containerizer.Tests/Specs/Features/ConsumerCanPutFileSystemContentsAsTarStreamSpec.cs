@@ -43,17 +43,11 @@ namespace Containerizer.Tests.Specs.Features
             {
                 HttpClient client = null;
 
-                before = () =>
-                {
-                    client = new HttpClient {BaseAddress = new Uri("http://localhost:" + port)};
-                };
+                before = () => { client = new HttpClient {BaseAddress = new Uri("http://localhost:" + port)}; };
 
                 context["there exists a container with a given id"] = () =>
                 {
-                    before = () =>
-                    {
-                        handle = Helpers.CreateContainer(client);
-                    };
+                    before = () => { handle = Helpers.CreateContainer(client); };
 
                     after = () => Helpers.DestroyContainer(client, handle);
 
@@ -74,21 +68,16 @@ namespace Containerizer.Tests.Specs.Features
                         };
 
                         it["returns a successful status code"] =
-                            () =>
-                            {
-                                responseMessage.IsSuccessStatusCode.should_be_true();
-                            };
+                            () => { responseMessage.IsSuccessStatusCode.should_be_true(); };
 
                         it["sees the new file in the container"] = () =>
                         {
-                            string fileContent = File.ReadAllText(Path.Combine(Helpers.GetContainerPath(handle), "file.txt"));
+                            string fileContent =
+                                File.ReadAllText(Path.Combine(Helpers.GetContainerPath(handle), "file.txt"));
                             fileContent.should_be("stuff!!!!");
                         };
 
-                        after = () =>
-                        {
-                            fileStream.Close();
-                        };
+                        after = () => { fileStream.Close(); };
                     };
                 };
             };

@@ -110,10 +110,11 @@ namespace Containerizer.Tests.Specs.Features
                             messages.should_contain("{\"type\":\"close\"}");
                         };
 
-                        it["should set PORT env variable"] = () =>
-                        {
-                            messages.should_contain("{\"type\":\"stdout\",\"data\":\"PORT=" + hostPort + "\\r\\n\"}");
-                        };
+                        it["should set PORT env variable"] =
+                            () =>
+                            {
+                                messages.should_contain("{\"type\":\"stdout\",\"data\":\"PORT=" + hostPort + "\\r\\n\"}");
+                            };
                     };
                 };
             };

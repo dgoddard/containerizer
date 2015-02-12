@@ -14,7 +14,7 @@ using Containerizer.Services.Interfaces;
 
 namespace Containerizer.Tests.Specs.Controllers
 {
-    class InfoControllerSpec : nspec
+    internal class InfoControllerSpec : nspec
     {
         private void describe_()
         {
@@ -32,7 +32,7 @@ namespace Containerizer.Tests.Specs.Controllers
                     mockContainer.Setup(x => x.GetInfo()).Returns(
                         new ContainerInfo
                         {
-                            ReservedPorts = new List<int> { expectedHostPort },
+                            ReservedPorts = new List<int> {expectedHostPort},
                         });
 
                     mockContainerService = new Mock<IContainerService>();
@@ -48,10 +48,7 @@ namespace Containerizer.Tests.Specs.Controllers
                     controller = new InfoController(mockContainerService.Object, mockPropertService.Object);
                 };
 
-                act = () =>
-                {
-                    result = controller.GetInfo(handle);
-                };
+                act = () => { result = controller.GetInfo(handle); };
 
                 it["returns info about the container"] = () =>
                 {
@@ -73,13 +70,10 @@ namespace Containerizer.Tests.Specs.Controllers
                     before = () =>
                     {
                         mockContainerService.Setup(x => x.GetContainerByHandle(handle))
-                       .Returns((IContainer)null);
+                            .Returns((IContainer) null);
                     };
 
-                    it["returns not found"] = () =>
-                    {
-                        result.should_cast_to<NotFoundResult>();
-                    };
+                    it["returns not found"] = () => { result.should_cast_to<NotFoundResult>(); };
                 };
             };
         }

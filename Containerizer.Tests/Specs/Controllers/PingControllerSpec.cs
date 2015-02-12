@@ -27,15 +27,9 @@ namespace Containerizer.Tests.Specs.Controllers
             describe[Controller.Show] = () =>
             {
                 IHttpActionResult result = null;
-                before = () =>
-                {
-                    result = pingController.Show();
-                };
+                before = () => { result = pingController.Show(); };
 
-                it["returns a successful status code"] = () =>
-                {
-                    result.VerifiesSuccessfulStatusCode();
-                };
+                it["returns a successful status code"] = () => { result.VerifiesSuccessfulStatusCode(); };
 
                 it["returns OK"] = () =>
                 {

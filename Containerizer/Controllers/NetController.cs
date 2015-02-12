@@ -40,18 +40,17 @@ namespace Containerizer.Controllers
             var container = containerService.GetContainerByHandle(id);
             if (container == null)
             {
-                return NotFound(); 
+                return NotFound();
             }
             try
             {
                 var returnedPort = container.ReservePort(request.HostPort);
-                return Json(new NetInResponse { HostPort = returnedPort });
+                return Json(new NetInResponse {HostPort = returnedPort});
             }
             catch (Exception ex)
             {
                 return InternalServerError(ex);
             }
-
         }
     }
 }

@@ -27,23 +27,14 @@ namespace Containerizer.Tests.Specs.Features
                 };
 
                 after =
-                    () =>
-                    {
-                        Helpers.RemoveExistingSite("Containerizer.Tests", "ContainerizerTestsApplicationPool");
-                    };
+                    () => { Helpers.RemoveExistingSite("Containerizer.Tests", "ContainerizerTestsApplicationPool"); };
 
                 context["And there exists a container with a given id"] = () =>
                 {
                     string containerId = null;
 
-                    before = () =>
-                    {
-                        containerId = Helpers.CreateContainer(client);
-                    };
-                    after = () =>
-                    {
-                        Helpers.RemoveExistingSite(containerId, containerId);
-                    };
+                    before = () => { containerId = Helpers.CreateContainer(client); };
+                    after = () => { Helpers.RemoveExistingSite(containerId, containerId); };
 
                     it["allows the consumer to interact with the property endpoints correctly"] = () =>
                     {
@@ -60,7 +51,8 @@ namespace Containerizer.Tests.Specs.Features
                         client.PutAsync(path(1), content(1)).Wait();
 
                         var indexPath = "/api/containers/" + containerId + "/info";
-                        var indexResponse = client.GetAsync(indexPath).Result.Content.ReadAsJson()["Properties"] as JObject;
+                        var indexResponse =
+                            client.GetAsync(indexPath).Result.Content.ReadAsJson()["Properties"] as JObject;
 
                         Action<int> verifyIndex =
                             n => indexResponse[properties[n].Key].ToString().should_be(properties[n].Value);
@@ -73,7 +65,7 @@ namespace Containerizer.Tests.Specs.Features
                         indexResponse = client.GetAsync(indexPath).Result.Content.ReadAsJson()["Properties"] as JObject;
                         indexResponse.Count.should_be(1);
 
-                        var showResponse = client.GetAsync(path(0)).Result.Content.ReadAsJson(); 
+                        var showResponse = client.GetAsync(path(0)).Result.Content.ReadAsJson();
                         showResponse["value"].ToString().should_be(properties[0].Value);
                     };
                 };
