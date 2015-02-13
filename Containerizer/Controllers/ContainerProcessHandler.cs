@@ -8,11 +8,69 @@ using Containerizer.Services.Interfaces;
 using Microsoft.Web.WebSockets;
 using Newtonsoft.Json;
 using IronFoundry.Container;
+using System.IO;
+using System.Text;
+using System.Collections.Generic;
 
 #endregion
 
 namespace Containerizer.Controllers
 {
+
+    internal class WSTextWriter : TextWriter
+    {
+        private WebSocketHandler ws;
+        private string name;
+
+        public WSTextWriter(WebSocketHandler ws, string name)
+        {
+            this.ws = ws;
+        }
+
+        public override void Write(string value)
+        {
+            string data = JsonConvert.SerializeObject(new ProcessStreamEvent
+            {
+                MessageType = this.name,
+                Data = value
+            }, Formatting.None);
+            ws.Send(data);
+        }
+
+        public override void Write(char value)
+        {
+            Write(value.ToString());
+        }
+
+        public override Encoding Encoding
+        {
+            get { return Encoding.Default; }
+        }
+    }
+    internal class StringProcessIO : IProcessIO
+    {
+        public WSTextWriter Error;
+        public WSTextWriter Output;
+
+        public StringProcessIO(WebSocketHandler ws)
+        {
+            Output = new WSTextWriter(ws, "stdout");
+            Error = new WSTextWriter(ws, "stderr");
+        }
+
+        public TextWriter StandardOutput
+        {
+            get { return Output; }
+        }
+
+        public TextWriter StandardError
+        {
+            get { return Error; }
+        }
+
+        public TextReader StandardInput { get; set; }
+    }
+
     public class ContainerProcessHandler : WebSocketHandler
     {
         private readonly string containerRoot;
@@ -29,42 +87,36 @@ namespace Containerizer.Controllers
         public override void OnMessage(string message)
         {
             var streamEvent = JsonConvert.DeserializeObject<ProcessStreamEvent>(message);
+            var processIO = new StringProcessIO(this);
 
             if (streamEvent.MessageType == "run" && streamEvent.ApiProcessSpec != null)
             {
-                ApiProcessSpec processSpec = streamEvent.ApiProcessSpec;
-                process.StartInfo.UseShellExecute = false;
-                process.StartInfo.RedirectStandardOutput = true;
-                process.StartInfo.RedirectStandardError = true;
-                process.StartInfo.RedirectStandardInput = true;
-                process.StartInfo.WorkingDirectory = containerRoot;
-                process.StartInfo.FileName = containerRoot + '\\' + processSpec.Path;
-                process.StartInfo.Arguments = processSpec.Arguments();
-                process.OutputDataReceived += OutputDataHandler;
-                process.ErrorDataReceived += OutputErrorDataHandler;
-                
+                ApiProcessSpec pSpec = streamEvent.ApiProcessSpec;
+                var processSpec = new IronFoundry.Container.ProcessSpec
+                {
+                    ExecutablePath = containerRoot + '\\' + pSpec.Path,
+                    Arguments = pSpec.Args,
+                    WorkingDirectory = containerRoot,
+                    Environment = new Dictionary<string, string>(),
+                };
+            
                 var reservedPorts = container.GetInfo().ReservedPorts;
                 if (reservedPorts.Count > 0)
-                    process.StartInfo.EnvironmentVariables["PORT"] = reservedPorts[0].ToString();
+                    processSpec.Environment["PORT"] = reservedPorts[0].ToString();
                 
                 try
                 {
-                    process.Start();
+                    container.Run(processSpec, processIO);
                 }
                 catch (Exception e)
                 {
                     SendEvent("error", e.Message);
                     return;
                 }
-                process.BeginOutputReadLine();
-                process.BeginErrorReadLine();
-
-                process.EnableRaisingEvents = true;
-                process.Exited += ProcessExitedHandler;
             }
             else if (streamEvent.MessageType == "stdin")
             {
-                process.StandardInput.Write(streamEvent.Data);
+                // process.StandardInput.Write(streamEvent.Data);
             }
         }
 
@@ -78,6 +130,7 @@ namespace Containerizer.Controllers
             Send(data);
         }
 
+        /*
         private void OutputDataHandler(object sendingProcess, DataReceivedEventArgs outLine)
         {
             if (outLine.Data == null) return;
@@ -94,5 +147,6 @@ namespace Containerizer.Controllers
         {
             SendEvent("close", null);
         }
+        */
     }
 }
