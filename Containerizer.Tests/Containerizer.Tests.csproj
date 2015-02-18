@@ -129,6 +129,7 @@
     <Compile Include="Specs\Features\ConsumerCanDestroyContainerSpec.cs" />
     <Compile Include="Specs\Features\ConsumerCanUsePropertyEndpointsSpec.cs" />
     <Compile Include="Specs\Features\ConsumerCanStreamInAndStreamOut.cs" />
+    <Compile Include="Specs\Features\DevCanRunProcessSpec.cs" />
     <Compile Include="Specs\Features\PingSpec.cs" />
     <Compile Include="Specs\Features\ConsumerCanAddAPortOnAContainerSpec.cs" />
     <Compile Include="Specs\Features\ConsumerCanCreateNewContainerSpec.cs" />
