@@ -30,6 +30,8 @@ namespace Containerizer.Tests.Specs.Controllers
         private Mock<IContainerDirectory> mockContainerDirectory;
         private IronFoundry.Container.ProcessSpec processSpec;
         private IronFoundry.Container.IProcessIO processIO;
+        private Mock<IronFoundry.Container.Utilities.IProcess> mockProcess;
+        private Mock<IronFoundry.Container.IContainerProcess> mockContainerProcess;
 
 
         private void before_each()
@@ -52,17 +54,18 @@ namespace Containerizer.Tests.Specs.Controllers
             mockContainer.Setup(x => x.Directory).Returns(mockContainerDirectory.Object);
             mockContainerDirectory.Setup(x => x.MapUserPath("")).Returns(@"C:\A\Directory\user");
 
+            mockProcess = new Mock<IronFoundry.Container.Utilities.IProcess>();
+            mockContainerProcess = new Mock<IronFoundry.Container.IContainerProcess>();
+            //mockContainerProcess.Setup(x => x.process).Returns(mockProcess.Object);
             mockContainer.Setup(x => x.Run(It.IsAny<IronFoundry.Container.ProcessSpec>(), It.IsAny<IronFoundry.Container.IProcessIO>()))
                 .Callback<IronFoundry.Container.ProcessSpec, IronFoundry.Container.IProcessIO>((processSpec, processIO) =>
                 {
                     this.processSpec = processSpec;
                     this.processIO = processIO;
-                });
+                })
+                .Returns(mockContainerProcess.Object);
 
             handler = new ContainerProcessHandler(containerId, mockContainerService.Object);
-
-            //fakeStandardInput = new byte[4096];
-            //var stream = new StreamWriter(new MemoryStream(fakeStandardInput)) { AutoFlush = true };
         }
 
         private void SendProcessOutputEvent(string message)
@@ -77,7 +80,7 @@ namespace Containerizer.Tests.Specs.Controllers
 
         private void SendProcessExitEvent()
         {
-            //mockProcess.Raise(mock => mock.Exited += null, (EventArgs)null);
+            mockProcess.Raise(mock => mock.Exited += null, (EventArgs)null);
         }
 
         private string WaitForWebSocketMessage(FakeWebSocket websocket)
@@ -186,18 +189,16 @@ namespace Containerizer.Tests.Specs.Controllers
                 };
             };
 
-            /*
-                       describe["once the process exits"] = () =>
-                       {
-                           it["sends close event over socket"] = () =>
-                           {
-                               SendProcessExitEvent();
+            describe["once the process exits"] = () =>
+            {
+                it["sends close event over socket"] = () =>
+                {
+                    SendProcessExitEvent();
 
-                               string message = WaitForWebSocketMessage(websocket);
-                               message.should_be("{\"type\":\"close\"}");
-                           };
-                       };
-                   */
+                    string message = WaitForWebSocketMessage(websocket);
+                    message.should_be("{\"type\":\"close\"}");
+                };
+            };
         }
     }
 }

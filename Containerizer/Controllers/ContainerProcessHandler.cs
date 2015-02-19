@@ -57,26 +57,15 @@ namespace Containerizer.Controllers
 
         public class ProcessIO : IronFoundry.Container.IProcessIO
         {
-            private WSWriter Output;
-            private WSWriter Error;
+            public TextWriter StandardOutput { get; set; }
+            public TextWriter StandardError { get; set; }
+            public TextReader StandardInput { get; set; }
 
             public ProcessIO(IWebSocketEventSender ws)
             {
-                Output = new WSWriter("stdout", ws);
-                Error = new WSWriter("stderr", ws);
+                StandardOutput = new WSWriter("stdout", ws);
+                StandardError = new WSWriter("stderr", ws);
             }
-
-            public TextWriter StandardOutput
-            {
-                get { return Output; }
-            }
-
-            public TextWriter StandardError
-            {
-                get { return Error; }
-            }
-
-            public TextReader StandardInput { get; set; }
         }
 
         private readonly string containerRoot;
@@ -115,45 +104,6 @@ namespace Containerizer.Controllers
                     SendEvent("error", e.Message);
                     return;
                 }
-
-                /*
-                ApiProcessSpec processSpec = streamEvent.ApiProcessSpec;
-                process.StartInfo.UseShellExecute = false;
-                process.StartInfo.RedirectStandardOutput = true;
-                process.StartInfo.RedirectStandardError = true;
-                process.StartInfo.RedirectStandardInput = true;
-                process.StartInfo.WorkingDirectory = containerRoot;
-                process.StartInfo.FileName = containerRoot + '\\' + processSpec.Path;
-                process.StartInfo.Arguments = processSpec.Arguments();
-                process.OutputDataReceived += OutputDataHandler;
-                process.ErrorDataReceived += OutputErrorDataHandler;
-                
-                var reservedPorts = container.GetInfo().ReservedPorts;
-                if (reservedPorts.Count > 0)
-                    process.StartInfo.EnvironmentVariables["PORT"] = reservedPorts[0].ToString();
-                
-                try
-                {
-                    process.Start();
-                }
-                catch (Exception e)
-                {
-                    SendEvent("error", e.Message);
-                    return;
-                }
-                process.BeginOutputReadLine();
-                process.BeginErrorReadLine();
-
-                process.EnableRaisingEvents = true;
-                process.Exited += ProcessExitedHandler;
-                 * */
-            }
-            else if (streamEvent.MessageType == "stdin")
-            {
-                // fixme - do something
-                /*
-                process.StandardInput.Write(streamEvent.Data);
-                 * */
             }
         }
 
